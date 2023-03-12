@@ -1,0 +1,3 @@
+/home/liye/ing-repo/Summer_Principle/program/build/CMakeFiles/rebuild_cache.dir
+/home/liye/ing-repo/Summer_Principle/program/build/CMakeFiles/edit_cache.dir
+/home/liye/ing-repo/Summer_Principle/program/build/CMakeFiles/main.dir

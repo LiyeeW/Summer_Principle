@@ -1,1 +1,0 @@
-robot_gui.exe program\CodeCraft\out\build\x64-debug\CodeCraft.exe -m maps\1.txt
