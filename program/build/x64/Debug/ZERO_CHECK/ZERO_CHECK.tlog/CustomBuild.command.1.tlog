@@ -1,0 +1,10 @@
+^D:\ING-REPO\SUMMER_PRINCIPLE\PROGRAM\BUILD\CMAKEFILES\36280FAF774A044C0407854D29C62F84\GENERATE.STAMP.RULE
+setlocal
+D:\install\CMake\bin\cmake.exe -SD:/ing-repo/Summer_Principle/program -BD:/ing-repo/Summer_Principle/program/build --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file D:/ing-repo/Summer_Principle/program/build/CodeCraftSDK.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

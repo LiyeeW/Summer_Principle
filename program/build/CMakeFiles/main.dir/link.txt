@@ -1,1 +1,0 @@
-/usr/bin/c++ CMakeFiles/main.dir/CheckerIO.cpp.o CMakeFiles/main.dir/Decision.cpp.o CMakeFiles/main.dir/Robot.cpp.o CMakeFiles/main.dir/Score.cpp.o CMakeFiles/main.dir/Station.cpp.o CMakeFiles/main.dir/main.cpp.o -o main 
