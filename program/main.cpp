@@ -9,6 +9,8 @@ using namespace std;
 int main()
 {
 	readMap();
+	//TODO
+	sendOK();
 	while(readFrame()){
 		makeDecision();
 		writeDecision();

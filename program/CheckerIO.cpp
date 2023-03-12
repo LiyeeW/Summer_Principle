@@ -36,7 +36,6 @@ bool readMap() {
     char line[1024];
     while (fgets(line, sizeof line, stdin)) {
         if (line[0] == 'O' && line[1] == 'K') {
-            sendOK();
             return true;
         }
         getMapByLine(line);
@@ -66,7 +65,6 @@ bool readFrame() {
     getchar();
     char line[1024];
     fgets(line, sizeof line, stdin);
-    sendOK();
     return true;
 }
 
