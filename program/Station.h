@@ -1,6 +1,8 @@
 #ifndef station_h
 #define station_h
 
+#include <algorithm>
+
 //最大工作台数量
 const int STATION_MAX_NUM = 50;
 //工作台数量
@@ -25,5 +27,17 @@ void addStationInfo(int type, float x, float y);
 
 //更新一个工作台信息
 void updateStationInfo(int id, int time, int raw, int ok);
+
+//计算两个工作台的直线距离
+float cacuStationDis(int id1, int id2);
+
+//工作台之间的联系
+typedef struct{
+	float value; //收益
+	float distance; //距离
+}StationRelation;
+
+//工作台间联系表
+extern StationRelation station_relation_table[STATION_MAX_NUM][STATION_MAX_NUM];
 
 #endif

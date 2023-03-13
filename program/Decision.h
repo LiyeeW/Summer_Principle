@@ -27,9 +27,7 @@ void makeDecision();
 //输出选择
 void outputDecision();
 
-
-
-
-
+//地图初始化：工作台联系表 和 任务队列
+void initMap(void);
 
 #endif
