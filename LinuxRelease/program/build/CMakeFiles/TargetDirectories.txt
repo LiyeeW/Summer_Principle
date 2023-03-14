@@ -1,0 +1,3 @@
+/mnt/f/桌面/Summer_Principle/LinuxRelease/program/build/CMakeFiles/rebuild_cache.dir
+/mnt/f/桌面/Summer_Principle/LinuxRelease/program/build/CMakeFiles/edit_cache.dir
+/mnt/f/桌面/Summer_Principle/LinuxRelease/program/build/CMakeFiles/main.dir
