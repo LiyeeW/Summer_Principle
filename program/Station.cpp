@@ -27,3 +27,6 @@ float cacuStationDis(int id1, int id2){
     float disy = station_info_table[id2].y-station_info_table[id2].y;
     return sqrt(disx*disx+disy*disy);
 }
+
+//工作台间联系表
+StationRelation station_relation_table[STATION_MAX_NUM][STATION_MAX_NUM];

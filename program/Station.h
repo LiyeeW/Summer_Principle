@@ -1,7 +1,7 @@
 #ifndef station_h
 #define station_h
 
-#include <algorithm>
+#include <math.h>
 
 //最大工作台数量
 const int STATION_MAX_NUM = 50;

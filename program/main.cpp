@@ -9,7 +9,8 @@ using namespace std;
 int main()
 {
 	readMap();
-	//TODO
+	//简单的任务队列初始化
+	initMap();
 	sendOK();
 	while(readFrame()){
 		makeDecision();

@@ -42,10 +42,10 @@ void outputDecision(){
 }
 
 //工作台间联系表
-StationRelation station_relation_table[STATION_MAX_NUM][STATION_MAX_NUM];
+//StationRelation station_relation_table[STATION_MAX_NUM][STATION_MAX_NUM];
 
 //任务队列
-list<TaskInfo> waiting_task_list;
+//list<TaskInfo> waiting_task_list;
 
 //地图初始化：工作台联系表 和 任务队列
 //初始任务队列的权重 = 剩余生产时间+差价/两地的距离

@@ -12,5 +12,11 @@ void addTaskInfo(int s, int d, float weight){
     task_num++;
 }
 
+bool mycompare(TaskInfo t1, TaskInfo t2){
+    return t1.weight>t2.weight;
+}
+
 //所有任务按照优先级排序
-void sortTaskList(void);
+void sortTaskList(void){
+    waiting_task_list.sort(mycompare);
+}
