@@ -19,6 +19,11 @@ typedef struct {
 	float orient;	//朝向
 	float x;	//x坐标
 	float y;	//y坐标
+
+	//增加机器人的当前任务执行状态
+	int task_id;   //分配的任务id
+	int task_status;    //0：正在前往取货点   1：已经取货了，正在前往收货点
+
 } RobotInfo;
 
 extern RobotInfo robot_info_table[ROBOT_NUM];
