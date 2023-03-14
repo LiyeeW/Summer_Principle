@@ -1,1 +1,0 @@
-WindowsRelease\robot.exe program\build\Debug\main.exe -f -m WindowsRelease\maps\1.txt
