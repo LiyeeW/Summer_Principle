@@ -6,11 +6,15 @@
 #include "Decision.h"
 
 #include <iostream>
+#include <chrono>
+#include <thread>
 
 using namespace std;
 
 //在读取输入时的处理函数指针
 typedef void (*FuncPtr)(char* line, int seq);
+//设定一个deadline
+chrono::time_point<chrono::steady_clock> deadline;
 
 //发送一行ok
 void sendOK(){
@@ -43,11 +47,15 @@ bool readMap() {
     return false;
 }
 
-
-
-//读取输入的当前帧
-bool readFrame() {
+//读输入的当前帧的头部
+bool readFrameHead(){
     if (scanf("%d", &current_frame) == EOF) return false;
+    return true;
+}
+
+
+//读取输入的当前帧的剩余完整信息
+void readFrameAll() {
     scanf("%d%*d", &current_score);
     //更新工作台信息
     for (int i = 0; i < station_num; i++) {
@@ -65,12 +73,26 @@ bool readFrame() {
     getchar();
     char line[1024];
     fgets(line, sizeof line, stdin);
-    return true;
 }
 
 //输出选择信息
 void writeDecision(){
     printf("%d\n", current_frame);
     outputDecision();
-    sendOK();
 }
+
+
+//设定ddl
+void setDDL(int ms){
+    //避免错过，冗余1ms
+    deadline = chrono::steady_clock::now() + chrono::milliseconds(ms-1);
+}
+
+//检查睡到ddl
+void waitDDL(){
+    auto wait = chrono::duration_cast<chrono::milliseconds>(deadline - chrono::steady_clock::now());
+    if (wait > chrono::milliseconds::zero()) {
+        this_thread::sleep_for(wait);
+    }
+}
+
