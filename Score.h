@@ -1,9 +1,9 @@
 #ifndef score_h
 #define score_h
 
-//µ±Ç°Ö¡ĞòºÅ£¨´Ó1¿ªÊ¼£©
+//å½“å‰å¸§åºå·ï¼ˆä»1å¼€å§‹ï¼‰
 extern int current_frame;
-//µ±Ç°½ğÇ®Êı
+//å½“å‰é‡‘é’±æ•°
 extern int current_score;
 
 #endif

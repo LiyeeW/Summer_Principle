@@ -2,31 +2,31 @@
 
 using namespace std;
 
-//¹¤×÷Ì¨ÊıÁ¿
+//å·¥ä½œå°æ•°é‡
 int station_num;
-//¹¤×÷Ì¨Î»ÖÃĞÅÏ¢±í
+//å·¥ä½œå°ä½ç½®ä¿¡æ¯è¡¨
 StationInfo station_info_table[STATION_MAX_NUM];
 
-//ĞÂÔöÒ»¸ö¹¤×÷Ì¨ĞÅÏ¢
+//æ–°å¢ä¸€ä¸ªå·¥ä½œå°ä¿¡æ¯
 void addStationInfo(int type, float x, float y){
     station_info_table[station_num].type = type;
     station_info_table[station_num].x = x;
     station_info_table[station_num++].y = y;
 }
 
-//¸üĞÂÒ»¸ö¹¤×÷Ì¨ĞÅÏ¢
+//æ›´æ–°ä¸€ä¸ªå·¥ä½œå°ä¿¡æ¯
 void updateStationInfo(int id, int time, int raw, int ok){
     station_info_table[id].time = time;
     station_info_table[id].raw = raw;
     station_info_table[id].ok = ok;
 }
 
-//¼ÆËãÁ½¸ö¹¤×÷Ì¨µÄÖ±Ïß¾àÀë
+//è®¡ç®—ä¸¤ä¸ªå·¥ä½œå°çš„ç›´çº¿è·ç¦»
 float cacuStationDis(int id1, int id2){
     float disx = station_info_table[id1].x-station_info_table[id2].x;
     float disy = station_info_table[id2].y-station_info_table[id2].y;
     return sqrt(disx*disx+disy*disy);
 }
 
-//¹¤×÷Ì¨¼äÁªÏµ±í
+//å·¥ä½œå°é—´è”ç³»è¡¨
 StationRelation station_relation_table[STATION_MAX_NUM][STATION_MAX_NUM];

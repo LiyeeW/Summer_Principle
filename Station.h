@@ -3,41 +3,41 @@
 
 #include <math.h>
 
-//×î´ó¹¤×÷Ì¨ÊıÁ¿
+//æœ€å¤§å·¥ä½œå°æ•°é‡
 const int STATION_MAX_NUM = 50;
-//¹¤×÷Ì¨ÊıÁ¿
+//å·¥ä½œå°æ•°é‡
 extern int station_num;
 
-//¹¤×÷Ì¨µÄ±ãÓÚ¾àÀë¼ÆËãµÄ¹Ø¼üĞÅÏ¢
+//å·¥ä½œå°çš„ä¾¿äºè·ç¦»è®¡ç®—çš„å…³é”®ä¿¡æ¯
 typedef struct {
-	int type;	//1-9µÄ¹¤×÷Ì¨ÀàĞÍ
-	float x;	//x×ø±ê
-	float y;	//y×ø±ê
-	int time;	//Ê£ÓàÉú²úÊ±¼ä
-	int raw;	//Ô­²ÄÁÏ¸ñ×´Ì¬
-	int ok;		//²úÆ·¸ñ×´Ì¬
+	int type;	//1-9çš„å·¥ä½œå°ç±»å‹
+	float x;	//xåæ ‡
+	float y;	//yåæ ‡
+	int time;	//å‰©ä½™ç”Ÿäº§æ—¶é—´
+	int raw;	//åŸææ–™æ ¼çŠ¶æ€
+	int ok;		//äº§å“æ ¼çŠ¶æ€
 } StationInfo;
 
 
-//¹¤×÷Ì¨Î»ÖÃĞÅÏ¢±í
+//å·¥ä½œå°ä½ç½®ä¿¡æ¯è¡¨
 extern StationInfo station_info_table[STATION_MAX_NUM];
 
-//ĞÂÔöÒ»¸ö¹¤×÷Ì¨ĞÅÏ¢
+//æ–°å¢ä¸€ä¸ªå·¥ä½œå°ä¿¡æ¯
 void addStationInfo(int type, float x, float y);
 
-//¸üĞÂÒ»¸ö¹¤×÷Ì¨ĞÅÏ¢
+//æ›´æ–°ä¸€ä¸ªå·¥ä½œå°ä¿¡æ¯
 void updateStationInfo(int id, int time, int raw, int ok);
 
-//¼ÆËãÁ½¸ö¹¤×÷Ì¨µÄÖ±Ïß¾àÀë
+//è®¡ç®—ä¸¤ä¸ªå·¥ä½œå°çš„ç›´çº¿è·ç¦»
 float cacuStationDis(int id1, int id2);
 
-//¹¤×÷Ì¨Ö®¼äµÄÁªÏµ
+//å·¥ä½œå°ä¹‹é—´çš„è”ç³»
 typedef struct{
-	float value; //ÊÕÒæ
-	float distance; //¾àÀë
+	float value; //æ”¶ç›Š
+	float distance; //è·ç¦»
 }StationRelation;
 
-//¹¤×÷Ì¨¼äÁªÏµ±í
+//å·¥ä½œå°é—´è”ç³»è¡¨
 extern StationRelation station_relation_table[STATION_MAX_NUM][STATION_MAX_NUM];
 
 #endif

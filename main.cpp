@@ -1,4 +1,4 @@
-﻿// main.cpp: 定义应用程序的入口点。
+// main.cpp: 定义应用程序的入口点。
 //
 
 #include "CheckerIO.h"
@@ -8,14 +8,14 @@ using namespace std;
 
 int main()
 {
-	setDDL(5*1000);
+	setDDL(4970);
 	readMap();
 	//简单的任务队列初始化
 	initMap();
 	waitDDL();
 	sendOK();
 	while(readFrameHead()){
-		setDDL(15);
+		setDDL(1);
 		readFrameAll();
 		makeDecision();
 		writeDecision();

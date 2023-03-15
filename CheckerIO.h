@@ -5,19 +5,19 @@ using namespace std;
 const int DOT_NUM = 100;
 
 
-//·¢ËÍÒ»ĞĞok
+//å‘é€ä¸€è¡Œok
 void sendOK();
-//¶ÁÈ¡ÊäÈëµØÍ¼
+//è¯»å–è¾“å…¥åœ°å›¾
 bool readMap();
-//¶ÁÊäÈëµÄµ±Ç°Ö¡µÄÍ·²¿
+//è¯»è¾“å…¥çš„å½“å‰å¸§çš„å¤´éƒ¨
 bool readFrameHead();
-//¶ÁÈ¡ÊäÈëµÄµ±Ç°Ö¡µÄÊ£ÓàÍêÕûĞÅÏ¢
+//è¯»å–è¾“å…¥çš„å½“å‰å¸§çš„å‰©ä½™å®Œæ•´ä¿¡æ¯
 void readFrameAll();
-//Êä³öÑ¡ÔñĞÅÏ¢
+//è¾“å‡ºé€‰æ‹©ä¿¡æ¯
 void writeDecision();
-//Éè¶¨ddl
+//è®¾å®šddl
 void setDDL(int ms);
-//¼ì²éË¯µ½ddl
+//æ£€æŸ¥ç¡åˆ°ddl
 void waitDDL();
 
 

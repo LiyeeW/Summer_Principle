@@ -10,35 +10,35 @@
 
 using namespace std;
 
-//Ñ¡ÔñµÄÊıÁ¿
+//é€‰æ‹©çš„æ•°é‡
 int decision_num = 0;
 
 
-//Ñ¡ÔñÀàĞÍ¶ÔÓ¦µÄ×Ö·û´®
+//é€‰æ‹©ç±»å‹å¯¹åº”çš„å­—ç¬¦ä¸²
 char decision_string[DECISION_TYPE_NUM][10] = {"forward", "rotate", "buy", "sell", "destroy"};
-//Ñ¡ÔñĞÅÏ¢±í
+//é€‰æ‹©ä¿¡æ¯è¡¨
 DecisionInfo decision_info_table[50];
 
 
-//ĞÂÔöÑ¡Ôñ
+//æ–°å¢é€‰æ‹©
 void addDecision(int type, int robot, float param){
     decision_info_table[decision_num++] = {type, robot, param};
 }
 
-//×ö³öÑ¡Ôñ
+//åšå‡ºé€‰æ‹©
 void makeDecision(){
-    //Çå¿ÕÉÏÒ»ÂÖµÄÑ¡Ôñ
+    //æ¸…ç©ºä¸Šä¸€è½®çš„é€‰æ‹©
     decision_num = 0;
 
-    //Èç¹û³öÏÖ¿ÕÏĞ»úÆ÷ÈË£º
-    //1. Ê×ÏÈÖØĞÂÅÅĞòbids£¬ÒÑÍê³ÉµÄtask¼ÓÈëbidÖĞ
-    //2. ·ÖÅäÈÎÎñ¸ø¿ÕÏĞ»úÆ÷ÈË£¨Õâ¸ö¼ÆËã¿ÉÄÜ³¬Ê±£©
-    //´ÓbidsÑ¡Ôñµ±Ç°¿ÕÏĞ»úÆ÷ÈË±¨¼Û×î¸ßµÄÈÎÎñ½øĞĞ·ÖÅä£¬Ñ¡ÖĞtask±»±ê¼ÇÎªÃ¦Âµ£¬¸Ãtask¶ÔÓ¦ËùÓĞbidÊ§Ğ§
+    //å¦‚æœå‡ºç°ç©ºé—²æœºå™¨äººï¼š
+    //1. é¦–å…ˆé‡æ–°æ’åºbidsï¼Œå·²å®Œæˆçš„taskåŠ å…¥bidä¸­
+    //2. åˆ†é…ä»»åŠ¡ç»™ç©ºé—²æœºå™¨äººï¼ˆè¿™ä¸ªè®¡ç®—å¯èƒ½è¶…æ—¶ï¼‰
+    //ä»bidsé€‰æ‹©å½“å‰ç©ºé—²æœºå™¨äººæŠ¥ä»·æœ€é«˜çš„ä»»åŠ¡è¿›è¡Œåˆ†é…ï¼Œé€‰ä¸­taskè¢«æ ‡è®°ä¸ºå¿™ç¢Œï¼Œè¯¥taskå¯¹åº”æ‰€æœ‰bidå¤±æ•ˆ
 
-    //³õÊ¼²âÊÔ£º
+    //åˆå§‹æµ‹è¯•ï¼š
     for(int i=0;i<robot_num;i++){
         for(BidInfo bid: bids_list){
-            if(bid.robot_id == i){  //·ÖÅä¸øiºÅ»úÆ÷ÈË
+            if(bid.robot_id == i){  //åˆ†é…ç»™iå·æœºå™¨äºº
                 addDecision(0,i,6);
                 break;
             }
@@ -46,12 +46,12 @@ void makeDecision(){
     }
     //end
 
-    //Ã»ÓĞ³öÏÖ¿ÕÏĞ»úÆ÷ÈË£ºÏÈ²»¹Ü
+    //æ²¡æœ‰å‡ºç°ç©ºé—²æœºå™¨äººï¼šå…ˆä¸ç®¡
 
     //addDecision(0,0,6);
 }
 
-//Êä³öÑ¡Ôñ
+//è¾“å‡ºé€‰æ‹©
 void outputDecision(){
     for(int i=0;i<decision_num;i++){
         printf("%s %d", decision_string[decision_info_table[i].type], decision_info_table[i].robot);
@@ -60,8 +60,8 @@ void outputDecision(){
     }
 }
 
-//µØÍ¼³õÊ¼»¯£ºÉú³ÉËùÓĞÈÎÎñ ÒÔ¼° ËùÓĞ±¨¼Û²¢ÅÅĞò ¼òµ¥µØ·ÖÅäÈÎÎñ
-//³õÊ¼ÈÎÎñ¶ÓÁĞµÄÈ¨ÖØ = Ê£ÓàÉú²úÊ±¼ä+²î¼Û/Á½µØµÄ¾àÀë
+//åœ°å›¾åˆå§‹åŒ–ï¼šç”Ÿæˆæ‰€æœ‰ä»»åŠ¡ ä»¥åŠ æ‰€æœ‰æŠ¥ä»·å¹¶æ’åº ç®€å•åœ°åˆ†é…ä»»åŠ¡
+//åˆå§‹ä»»åŠ¡é˜Ÿåˆ—çš„æƒé‡ = å‰©ä½™ç”Ÿäº§æ—¶é—´+å·®ä»·/ä¸¤åœ°çš„è·ç¦»
 void initMap(void){
     //generate all tasks:
     for(int i=0;i<station_num;i++){
@@ -142,9 +142,9 @@ void initMap(void){
             float xx = robot_info_table[i].x-station_info_table[waiting_task_list[j].source].x;
             float yy = robot_info_table[i].y-station_info_table[waiting_task_list[j].source].y;
             addBidInfo(i,j,sqrt(xx+yy)); 
-            //±¨¼ÛĞèÒª½øÒ»²½¾«È·»¯ TODO
+            //æŠ¥ä»·éœ€è¦è¿›ä¸€æ­¥ç²¾ç¡®åŒ– TODO
         }
     }
     sortBidList();
-    //¼òµ¥µØ·ÖÅäÈÎÎñ
+    //ç®€å•åœ°åˆ†é…ä»»åŠ¡
 }

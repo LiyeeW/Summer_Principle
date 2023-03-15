@@ -1,33 +1,33 @@
 #ifndef decision_h
 #define decision_h
 
-//Ñ¡ÔñÀàĞÍµÄÊıÁ¿
+//é€‰æ‹©ç±»å‹çš„æ•°é‡
 const int DECISION_TYPE_NUM = 5;
 
 
 
-//Ñ¡ÔñĞÅÏ¢
+//é€‰æ‹©ä¿¡æ¯
 typedef struct {
-    int type;       //0-4µÄÑ¡ÔñÀàĞÍ
-    int robot;      //»úÆ÷ÈËID
-    float param;    //²ÎÊı2
+    int type;       //0-4çš„é€‰æ‹©ç±»å‹
+    int robot;      //æœºå™¨äººID
+    float param;    //å‚æ•°2
 } DecisionInfo;
 
-//Ñ¡ÔñµÄÊıÁ¿
+//é€‰æ‹©çš„æ•°é‡
 extern int decision_num;
 
 
-//Ñ¡ÔñÀàĞÍ¶ÔÓ¦µÄ×Ö·û´®
+//é€‰æ‹©ç±»å‹å¯¹åº”çš„å­—ç¬¦ä¸²
 extern char decision_string[DECISION_TYPE_NUM][10];
-//Ñ¡ÔñĞÅÏ¢±í
+//é€‰æ‹©ä¿¡æ¯è¡¨
 extern DecisionInfo decision_info_table[50];
 
-//×ö³öÑ¡Ôñ
+//åšå‡ºé€‰æ‹©
 void makeDecision();
-//Êä³öÑ¡Ôñ
+//è¾“å‡ºé€‰æ‹©
 void outputDecision();
 
-//µØÍ¼³õÊ¼»¯£º¹¤×÷Ì¨ÁªÏµ±í ºÍ ÈÎÎñ¶ÓÁĞ
+//åœ°å›¾åˆå§‹åŒ–ï¼šå·¥ä½œå°è”ç³»è¡¨ å’Œ ä»»åŠ¡é˜Ÿåˆ—
 void initMap(void);
 
 #endif

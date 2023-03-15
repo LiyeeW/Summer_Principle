@@ -3,20 +3,20 @@
 
 using namespace std;
 
-//»úÆ÷ÈËĞÅÏ¢±í
+//æœºå™¨äººä¿¡æ¯è¡¨
 RobotInfo robot_info_table[ROBOT_NUM];
 
-//»úÆ÷ÈËÊıÁ¿
+//æœºå™¨äººæ•°é‡
 int robot_num = 0;
 
-//ĞÂÔöÒ»¸ö»úÆ÷ÈË¼ÇÂ¼
+//æ–°å¢ä¸€ä¸ªæœºå™¨äººè®°å½•
 void addRobotInfo(float x, float y){
 	robot_info_table[robot_num].x = x;
 	robot_info_table[robot_num++].y = y;
 	//cerr<<"new robot "<<x<<" "<<y<<endl;
 }
 
-//¸üĞÂÒ»¸ö»úÆ÷ÈË¼ÇÂ¼
+//æ›´æ–°ä¸€ä¸ªæœºå™¨äººè®°å½•
 void updateRobotInfo(int id, int s, int i, float t, float c, float o, float xS, float yS, float ori, float x, float y){
 	int time = robot_info_table[id].time;
 	int collision = robot_info_table[id].collision;
