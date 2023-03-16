@@ -1,43 +1,43 @@
 #ifndef robot_h
 #define robot_h
 
-//»úÆ÷ÈËÊıÁ¿
+//æœºå™¨äººæ•°é‡
 const int ROBOT_NUM = 4;
 extern int robot_num;
 
-//»úÆ÷ÈË»ù±¾ĞÅÏ¢
+//æœºå™¨äººåŸºæœ¬ä¿¡æ¯
 typedef struct {
-	int station;	//ËùÔÚµÄ¹¤×÷Ì¨ID
-	int item;		//Ğ¯´øµÄÎïÆ·
-	int time;		//³ÖÓĞÖ¡Êı
-	int collision;	//Åö×²´ÎÊı
-	float timeValue;//Ê±¼ä¼ÛÖµÏµÊı
-	float collisionValue;	//Åö×²¼ÛÖµÏµÊı
-	float omega;	//½ÇËÙ¶È
-	float xSpeed;	//x·½ÏòËÙ¶È
-	float ySpeed;	//y·½ÏòËÙ¶È
-	float orient;	//³¯Ïò
-	float x;	//x×ø±ê
-	float y;	//y×ø±ê
+	int station;	//æ‰€åœ¨å·¥ä½œå°ID
+	int item;		//æºå¸¦çš„ç‰©å“
+	int time;		//æŒæœ‰å¸§æ•°
+	int collision;	//ç¢°æ’æ¬¡æ•°
+	float timeValue;//æ—¶é—´ä»·å€¼ç³»æ•°
+	float collisionValue;	//ç¢°æ’ä»·å€¼ç³»æ•°
+	float omega;	//è§’é€Ÿåº¦
+	float xSpeed;	//xæ–¹å‘é€Ÿåº¦
+	float ySpeed;	//yæ–¹å‘é€Ÿåº¦
+	float orient;	//æœå‘
+	float x;	//xåæ ‡
+	float y;	//yåæ ‡
 
-	//Ôö¼Ó»úÆ÷ÈËµÄµ±Ç°ÈÎÎñÖ´ĞĞ×´Ì¬£¬ÕâÁ½¸ö±äÁ¿ÓÃÓÚÔË¶¯ÏµÍ³ºÍ¾ö²ßÏµÍ³µÄÍ¨ĞÅ½»»¥
-	int task_id;   //·ÖÅäµÄÈÎÎñid
-	int task_status;    //-1£ºÃ»ÓĞÈÎÎñ  0£ºÕıÔÚÇ°ÍùÈ¡»õµã   1£ºÒÑ¾­È¡»õÁË£¬ÕıÔÚÇ°ÍùÊÕ»õµã	 2£ºÒÑÍê³É	
+	//å¢åŠ æœºå™¨äººå½“å‰ä»»åŠ¡æ‰§è¡ŒçŠ¶æ€ï¼Œç”¨äºå†³ç­–ç³»ç»Ÿå’Œè¿åŠ¨ç³»ç»Ÿçš„äº¤äº’é€šä¿¡
+	int task_id;   //åˆ†é…çš„ä»»åŠ¡id
+	int task_status;    //-1ï¼šæœªåˆ†é…ä»»åŠ¡  0ï¼šæ­£åœ¨å‰å¾€å–è´§   1ï¼šå·²å–è´§ï¼Œæ­£åœ¨é€è´§	 2ï¼šé€è´§å®Œæ¯•	
 
 } RobotInfo;
 
 extern RobotInfo robot_info_table[ROBOT_NUM];
 
-//ĞÂÔöÒ»¸ö»úÆ÷ÈË¼ÇÂ¼
+//æ–°å¢ä¸€ä¸ªæœºå™¨äººè®°å½•
 void addRobotInfo(float x, float y);
 
-//¸üĞÂÒ»¸ö»úÆ÷ÈË¼ÇÂ¼
+//æ›´æ–°ä¸€ä¸ªæœºå™¨äººè®°å½•
 void updateRobotInfo(int id, int s, int i, float t, float c, float o, float xS, float yS, float ori, float x, float y);
 
-//Îª»úÆ÷ÈË·ÖÅäÈÎÎñ
+//ä¸ºæœºå™¨äººåˆ†é…ä»»åŠ¡
 void addTasktoRobot(int robot_id, int id, int status);
 
-//»ñÈ¡µ±Ç°·ÖÅäµÄÈÎÎñid
+//è·å–å½“å‰åˆ†é…çš„ä»»åŠ¡id
 int getTaskofRobot(int id);
 
 #endif

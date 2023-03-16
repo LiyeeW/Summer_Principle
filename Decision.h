@@ -1,42 +1,42 @@
 #ifndef decision_h
 #define decision_h
 
-//Ñ¡ÔñÀàĞÍµÄÊıÁ¿
+//é€‰æ‹©ç±»å‹çš„æ•°é‡
 const int DECISION_TYPE_NUM = 5;
 
 
 
-//Ñ¡ÔñĞÅÏ¢
+//é€‰æ‹©ä¿¡æ¯
 typedef struct {
-    int type;       //0-4µÄÑ¡ÔñÀàĞÍ
-    int robot;      //»úÆ÷ÈËID
-    float param;    //²ÎÊı2
+    int type;       //0-4çš„é€‰æ‹©ç±»å‹
+    int robot;      //æœºå™¨äººID
+    float param;    //å‚æ•°2
 } DecisionInfo;
 
-//Ñ¡ÔñµÄÊıÁ¿
+//é€‰æ‹©çš„æ•°é‡
 extern int decision_num;
 
 
-//Ñ¡ÔñÀàĞÍ¶ÔÓ¦µÄ×Ö·û´®
+//é€‰æ‹©ç±»å‹å¯¹åº”çš„å­—ç¬¦ä¸²
 extern char decision_string[DECISION_TYPE_NUM][10];
-//Ñ¡ÔñĞÅÏ¢±í
+//é€‰æ‹©ä¿¡æ¯è¡¨
 extern DecisionInfo decision_info_table[50];
 
-//×ö³öÑ¡Ôñ
+//åšå‡ºé€‰æ‹©
 void makeDecision();
-//Êä³öÑ¡Ôñ
+//è¾“å‡ºé€‰æ‹©
 void outputDecision();
 
-//µØÍ¼³õÊ¼»¯£º¹¤×÷Ì¨ÁªÏµ±í ºÍ ÈÎÎñ¶ÓÁĞ
+//åœ°å›¾åˆå§‹åŒ–ï¼šå·¥ä½œå°è”ç³»è¡¨ å’Œ ä»»åŠ¡é˜Ÿåˆ—
 void initMap(void);
 
-//¼ÆËã¾ßÓĞ×î´ópriceµÄÈÎÎñ²¢·µ»Ø
+//è®¡ç®—å…·æœ‰æœ€å¤§priceçš„ä»»åŠ¡å¹¶è¿”å›
 void assignTaskfromBids();
 
-//±éÀúËùÓĞÈÎÎñ£¬ÕÒ³öÄÜÇ°ÍùµÄÈÎÎñid·Åµ½avail_taskid_list
+//éå†æ‰€æœ‰ä»»åŠ¡ï¼Œæ‰¾å‡ºèƒ½å‰å¾€çš„ä»»åŠ¡idæ”¾åˆ°avail_taskid_list
 void updateAvailList(void);
 
-//Îªrobot_idÉú³É±¨¼Û²¢ÅÅĞò
+//ä¸ºrobot_idç”ŸæˆæŠ¥ä»·å¹¶æ’åº
 void generateBids(int robot_id);
 
 #endif

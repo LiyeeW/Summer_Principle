@@ -10,45 +10,45 @@
 
 using namespace std;
 
-//Ñ¡ÔñµÄÊıÁ¿
+//é€‰æ‹©çš„æ•°é‡
 int decision_num = 0;
 
 
-//Ñ¡ÔñÀàĞÍ¶ÔÓ¦µÄ×Ö·û´®
+//é€‰æ‹©ç±»å‹å¯¹åº”çš„å­—ç¬¦ä¸²
 char decision_string[DECISION_TYPE_NUM][10] = {"forward", "rotate", "buy", "sell", "destroy"};
-//Ñ¡ÔñĞÅÏ¢±í
+//é€‰æ‹©ä¿¡æ¯è¡¨
 DecisionInfo decision_info_table[50];
 
 
-//ĞÂÔöÑ¡Ôñ
+//æ–°å¢é€‰æ‹©
 void addDecision(int type, int robot, float param){
     decision_info_table[decision_num++] = {type, robot, param};
 }
 
-//×ö³öÑ¡Ôñ
+//åšå‡ºé€‰æ‹©
 void makeDecision(){
-    //Çå¿ÕÉÏÒ»ÂÖµÄÑ¡Ôñ
+    //æ¸…ç©ºä¸Šä¸€è½®çš„é€‰æ‹©
     decision_num = 0;
 
-    //Èç¹û³öÏÖ¿ÕÏĞ»úÆ÷ÈË£º
-    //0. £¨Èç¹ûÓĞÈÎÎñÍê³É£©±ê¼ÇÒÑÍê³ÉµÄÈÎÎñÎªfree
-    //1. Éú³ÉÄÜ»ñÈ¡µÄÈÎÎñidÁĞ±í
-    //2. Îª¿ÕÏĞ»úÆ÷ÈËÉú³Ébids
-    //3. Îª¿ÕÏĞ»úÆ÷ÈË·ÖÅätask
+    //å¦‚æœå‡ºç°ç©ºé—²æœºå™¨äººï¼š
+    //0. ï¼ˆå¦‚æœæœ‰ä»»åŠ¡å®Œæˆï¼‰æ ‡è®°å·²å®Œæˆçš„ä»»åŠ¡ä¸ºfree
+    //1. ç”Ÿæˆèƒ½è·å–çš„ä»»åŠ¡idåˆ—è¡¨
+    //2. ä¸ºç©ºé—²æœºå™¨äººç”Ÿæˆbids
+    //3. ä¸ºç©ºé—²æœºå™¨äººåˆ†é…task
     
-    //½«ÒÑÍê³ÉµÄÈÎÎñ×´Ì¬¸üĞÂ
+    //å°†å·²å®Œæˆçš„ä»»åŠ¡çŠ¶æ€æ›´æ–°
     for(int i=0;i<robot_num;i++){
         if(robot_info_table[i].task_status == 2){
-            //µ±ÓĞ»úÆ÷ÈËrobot_idÍê³ÉÈÎÎñºó£¬¸üĞÂÈÎÎñ×´Ì¬
+            //å½“æœ‰æœºå™¨äººrobot_idå®Œæˆä»»åŠ¡åï¼Œæ›´æ–°ä»»åŠ¡çŠ¶æ€
             tagFreeTask(getTaskofRobot(i));
         }
     }
     bool flag = false;
     for(int i=0;i<robot_num;i++){  
-        //ÎªÃ¿¸ö¿ÕÏĞ»úÆ÷ÈËÉú³Ébids£º£¨Ã»ÓĞ³öÏÖ¿ÕÏĞ»úÆ÷ÈË£ºÏÈ²»¹Ü£©
+        //ä¸ºæ¯ä¸ªç©ºé—²æœºå™¨äººç”Ÿæˆbidsï¼šï¼ˆæ²¡æœ‰å‡ºç°ç©ºé—²æœºå™¨äººï¼šå…ˆä¸ç®¡ï¼‰
         if(robot_info_table[i].task_status == -1){
             if(!flag){
-                updateAvailList();   //³õÊ¼Ê±Ó¦¸ÃÖ»ÓĞ1£¬2£¬3Éú²ú¹¤×÷Ì¨¶ÔÓ¦µÄÈÎÎñ
+                updateAvailList();   //åˆå§‹æ—¶åº”è¯¥åªæœ‰1ï¼Œ2ï¼Œ3ç”Ÿäº§å·¥ä½œå°å¯¹åº”çš„ä»»åŠ¡
                 flag = true;
             }
             generateBids(i);
@@ -59,7 +59,7 @@ void makeDecision(){
     
 }
 
-//Êä³öÑ¡Ôñ
+//è¾“å‡ºé€‰æ‹©
 void outputDecision(){
     for(int i=0;i<decision_num;i++){
         printf("%s %d", decision_string[decision_info_table[i].type], decision_info_table[i].robot);
@@ -68,15 +68,15 @@ void outputDecision(){
     }
 }
 
-//¼ÆËã¾ßÓĞ×î´ópriceµÄÈÎÎñ²¢·µ»Ø
+//è®¡ç®—å…·æœ‰æœ€å¤§priceçš„ä»»åŠ¡å¹¶è¿”å›
 void assignTaskfromBids(){
-    //Ç°Ìá±£Ö¤£º²»¿ÕÏĞµÄrobot¶ÔÓ¦µÄbids_listÎª¿Õ
+    //å‰æä¿è¯ï¼šä¸ç©ºé—²çš„robotå¯¹åº”çš„bids_listä¸ºç©º
     float max_price;
     int max_robot_id;
     while(1){
         max_price = 0;
         max_robot_id = -1;
-        //bids_list±©Â¶³öÀ´
+        //bids_listæš´éœ²å‡ºæ¥
         for(int i=0;i<robot_num;i++){
             if(!bids_list[i].empty()){
                 while(isTaskBusy(bids_list[i][0].task_id)){
@@ -89,7 +89,7 @@ void assignTaskfromBids(){
             }
         }
         if(max_robot_id != -1){
-            //·ÖÅäÈÎÎñ¸ø¾º±ê³É¹¦µÄrobot£¬²¢Çå¿ÕÆäbids_list
+            //åˆ†é…ä»»åŠ¡ç»™ç«æ ‡æˆåŠŸçš„robotï¼Œå¹¶æ¸…ç©ºå…¶bids_list
             addTasktoRobot(max_robot_id,bids_list[max_robot_id][0].task_id,0);
             tagBusyTask(bids_list[max_robot_id][0].task_id);
             clearBidList(max_robot_id);
@@ -99,42 +99,42 @@ void assignTaskfromBids(){
     }
 }
 
-//±éÀúËùÓĞÈÎÎñ£¬ÕÒ³öÄÜÇ°ÍùµÄÈÎÎñid·Åµ½avail_taskid_list
+//éå†æ‰€æœ‰ä»»åŠ¡ï¼Œæ‰¾å‡ºèƒ½å‰å¾€çš„ä»»åŠ¡idæ”¾åˆ°avail_taskid_list
 void updateAvailList(void){
-    clearTaskIdList();  //ÏÈÇå¿ÕÄÜ×öµÄËùÓĞÈÎÎñ
+    clearTaskIdList();  //å…ˆæ¸…ç©ºèƒ½åšçš„æ‰€æœ‰ä»»åŠ¡
     for(int i=0;i<task_num;i++){
         int s = getSourceOfTask(i);
         int d = getDestOfTask(i);
-        //source±ØĞëÒÑ¾­ÓĞÁË²úÆ· »òÕß ´¦ÓÚÉú²úÖĞ
+        //sourceå¿…é¡»å·²ç»æœ‰äº†äº§å“ æˆ–è€… å¤„äºç”Ÿäº§ä¸­
         if(getTimeOfStation(s)==-1 && getOkOfStation(s)==0){
             continue;
         }
-        //dest±ØĞëÓĞÎ»ÖÃ·Å²úÆ· ÔİÊ±²»¿¼ÂÇdestÕıÔÚÉú²úµÄÇé¿ö
+        //destå¿…é¡»æœ‰ä½ç½®æ”¾äº§å“ æš‚æ—¶ä¸è€ƒè™‘destæ­£åœ¨ç”Ÿäº§çš„æƒ…å†µ
         int type = getTypeOfStation(s);
         int raw = getRawOfStation(d);
         if(((1<<(type-1)) & raw) == 0){
             continue;
         }
-        //µ±Ç°id¼ÓÈë
+        //å½“å‰idåŠ å…¥
         addTaskId(i);
     }
 }
 
-//Îªrobot_idÉú³É±¨¼Û²¢ÅÅĞò£¬Ôİ¶¨µÄ±¨¼Û=»úÆ÷ÈËµ½Éú²ú½ÚµãµÄ¾àÀë+²î¼Û/¹¤×÷Ì¨Ö®¼äµÄ¾àÀë
+//ä¸ºrobot_idç”ŸæˆæŠ¥ä»·å¹¶æ’åºï¼Œæš‚å®šçš„æŠ¥ä»·=æœºå™¨äººåˆ°ç”Ÿäº§èŠ‚ç‚¹çš„è·ç¦»+å·®ä»·/å·¥ä½œå°ä¹‹é—´çš„è·ç¦»
 void generateBids(int robot_id){
     clearBidList(robot_id);
-    //½«avail_taskid_list±©Â¶
+    //å°†avail_taskid_listæš´éœ²
     for(int task_id: avail_taskid_list){
         float xx = robot_info_table[robot_id].x-station_info_table[waiting_task_list[task_id].source].x;
         float yy = robot_info_table[robot_id].y-station_info_table[waiting_task_list[task_id].source].y;
-        //±¨¼ÛĞèÒª½øÒ»²½¾«È·»¯ TODO
+        //æŠ¥ä»·éœ€è¦è¿›ä¸€æ­¥ç²¾ç¡®åŒ– TODO
         addBidInfo(robot_id,task_id,sqrt(xx+yy)+getWeightOfTask(task_id));
     }
     sortBidList(robot_id);
 }
 
-//µØÍ¼³õÊ¼»¯£ºÉú³ÉËùÓĞÈÎÎñ
-//³õÊ¼ÈÎÎñ¶ÓÁĞµÄÈ¨ÖØ = ²î¼Û/Á½µØµÄ¾àÀë
+//åœ°å›¾åˆå§‹åŒ–ï¼šç”Ÿæˆæ‰€æœ‰ä»»åŠ¡
+//åˆå§‹ä»»åŠ¡é˜Ÿåˆ—çš„æƒé‡ = å·®ä»·/ä¸¤åœ°çš„è·ç¦»
 void initMap(void){
     //generate all tasks:
     for(int i=0;i<station_num;i++){

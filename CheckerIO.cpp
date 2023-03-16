@@ -6,21 +6,25 @@
 #include "Decision.h"
 
 #include <iostream>
+#include <chrono>
+#include <thread>
 
 using namespace std;
 
-//ÔÚ¶ÁÈ¡ÊäÈëÊ±µÄ´¦Àíº¯ÊıÖ¸Õë
+//åœ¨è¯»å–è¾“å…¥æ—¶çš„å¤„ç†å‡½æ•°æŒ‡é’ˆ
 typedef void (*FuncPtr)(char* line, int seq);
+//è®¾å®šä¸€ä¸ªdeadline
+chrono::time_point<chrono::steady_clock> deadline;
 
-//·¢ËÍÒ»ĞĞok
+//å‘é€ä¸€è¡Œok
 void sendOK(){
     puts("OK");
     fflush(stdout);
 }
 
-//¶ÁÈëÒ»ĞĞÔ­Ê¼µØÍ¼ºóµÄ¹¤×÷Õ¾ºÍ»úÆ÷ÈËµÄÎ»ÖÃ¼ÇÂ¼
+//è¯»å…¥ä¸€è¡ŒåŸå§‹åœ°å›¾åçš„å·¥ä½œç«™å’Œæœºå™¨äººçš„ä½ç½®è®°å½•
 void getMapByLine(char* line) {
-    //ËæĞĞµİ¼õµÄy×ø±ê
+    //éšè¡Œé€’å‡çš„yåæ ‡
     static float y =49.75;
     for (int i = 0; i < DOT_NUM; i++) {
         if (line[i] == '.') continue;
@@ -31,7 +35,7 @@ void getMapByLine(char* line) {
     y -= 0.5;
 }
 
-//¶ÁÈ¡ÊäÈëµØÍ¼
+//è¯»å–è¾“å…¥åœ°å›¾
 bool readMap() {
     char line[1024];
     while (fgets(line, sizeof line, stdin)) {
@@ -43,19 +47,23 @@ bool readMap() {
     return false;
 }
 
-
-
-//¶ÁÈ¡ÊäÈëµÄµ±Ç°Ö¡
-bool readFrame() {
+//è¯»è¾“å…¥çš„å½“å‰å¸§çš„å¤´éƒ¨
+bool readFrameHead(){
     if (scanf("%d", &current_frame) == EOF) return false;
+    return true;
+}
+
+
+//è¯»å–è¾“å…¥çš„å½“å‰å¸§çš„å‰©ä½™å®Œæ•´ä¿¡æ¯
+void readFrameAll() {
     scanf("%d%*d", &current_score);
-    //¸üĞÂ¹¤×÷Ì¨ĞÅÏ¢
+    //æ›´æ–°å·¥ä½œå°ä¿¡æ¯
     for (int i = 0; i < station_num; i++) {
         int a, b, c;
         scanf("%*d%*f%*f%d%d%d", &a, &b, &c);
         updateStationInfo(i, a, b, c);
     }
-    //¸üĞÂ»úÆ÷ÈËĞÅÏ¢
+    //æ›´æ–°æœºå™¨äººä¿¡æ¯
     for (int i = 0; i < robot_num; i++) {
         int station, item;
         float timeValue, collisionValue, omega, xSpeed, ySpeed, orient, x, y;
@@ -65,12 +73,25 @@ bool readFrame() {
     getchar();
     char line[1024];
     fgets(line, sizeof line, stdin);
-    return true;
 }
 
-//Êä³öÑ¡ÔñĞÅÏ¢
+//è¾“å‡ºé€‰æ‹©ä¿¡æ¯
 void writeDecision(){
     printf("%d\n", current_frame);
     outputDecision();
-    sendOK();
+}
+
+
+//è®¾å®šddl
+void setDDL(int ms){
+    //é¿å…é”™è¿‡ï¼Œå†—ä½™1msä¼šé”™è¿‡4451/9000å¸§ï¼Œå†—ä½™3msè¿˜æ˜¯ï¼Œå†—ä½™10ms
+    deadline = chrono::steady_clock::now() + chrono::milliseconds(ms);
+}
+
+//æ£€æŸ¥ç¡åˆ°ddl
+void waitDDL(){
+    auto wait = chrono::duration_cast<chrono::milliseconds>(deadline - chrono::steady_clock::now());
+    if (wait > chrono::milliseconds::zero()) {
+        this_thread::sleep_for(wait);
+    }
 }

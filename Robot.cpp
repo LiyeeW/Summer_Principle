@@ -3,13 +3,13 @@
 
 using namespace std;
 
-//»úÆ÷ÈËĞÅÏ¢±í
+//æœºå™¨äººä¿¡æ¯è¡¨
 RobotInfo robot_info_table[ROBOT_NUM];
 
-//»úÆ÷ÈËÊıÁ¿
+//æœºå™¨äººæ•°é‡
 int robot_num = 0;
 
-//ĞÂÔöÒ»¸ö»úÆ÷ÈË¼ÇÂ¼
+//æ–°å¢ä¸€ä¸ªæœºå™¨äººè®°å½•
 void addRobotInfo(float x, float y){
 	robot_info_table[robot_num].x = x;
 	robot_info_table[robot_num].task_id = -1;
@@ -18,7 +18,7 @@ void addRobotInfo(float x, float y){
 	//cerr<<"new robot "<<x<<" "<<y<<endl;
 }
 
-//¸üĞÂÒ»¸ö»úÆ÷ÈË¼ÇÂ¼
+//æ›´æ–°ä¸€ä¸ªæœºå™¨äººè®°å½•
 void updateRobotInfo(int id, int s, int i, float t, float c, float o, float xS, float yS, float ori, float x, float y){
 	int time = robot_info_table[id].time;
 	int collision = robot_info_table[id].collision;
@@ -26,13 +26,13 @@ void updateRobotInfo(int id, int s, int i, float t, float c, float o, float xS, 
 	//cerr<<"update robot"<<x<<" "<<y<<endl;
 }
 
-//Îª»úÆ÷ÈË·ÖÅäÈÎÎñ
+//ä¸ºæœºå™¨äººåˆ†é…ä»»åŠ¡
 void addTasktoRobot(int robot_id, int id, int status){
 	robot_info_table[robot_id].task_id = id;
 	robot_info_table[robot_id].task_status = status;
 }
 
-//»ñÈ¡µ±Ç°·ÖÅäµÄÈÎÎñid
+//è·å–å½“å‰åˆ†é…çš„ä»»åŠ¡id
 int getTaskofRobot(int id){
 	return robot_info_table[id].task_id;
 }

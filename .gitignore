@@ -1,2 +1,7 @@
+<<<<<<< HEAD
 /build
+=======
+/build
+/.dist
+>>>>>>> ad1dbadfaf4ff10caea002595503498e9f9fc9ea
 *.zip

@@ -3,54 +3,54 @@
 
 #include <math.h>
 
-//×î´ó¹¤×÷Ì¨ÊıÁ¿
+//æœ€å¤§å·¥ä½œå°æ•°é‡
 const int STATION_MAX_NUM = 50;
-//¹¤×÷Ì¨ÊıÁ¿
+//å·¥ä½œå°æ•°é‡
 extern int station_num;
 
-//¹¤×÷Ì¨µÄ±ãÓÚ¾àÀë¼ÆËãµÄ¹Ø¼üĞÅÏ¢
+//å·¥ä½œå°çš„ä¾¿äºè·ç¦»è®¡ç®—çš„å…³é”®ä¿¡æ¯
 typedef struct {
-	int type;	//1-9µÄ¹¤×÷Ì¨ÀàĞÍ
-	float x;	//x×ø±ê
-	float y;	//y×ø±ê
-	int time;	//Ê£ÓàÉú²úÊ±¼ä
-	int raw;	//Ô­²ÄÁÏ¸ñ×´Ì¬
-	int ok;		//²úÆ·¸ñ×´Ì¬
+	int type;	//1-9çš„å·¥ä½œå°ç±»å‹
+	float x;	//xåæ ‡
+	float y;	//yåæ ‡
+	int time;	//å‰©ä½™ç”Ÿäº§æ—¶é—´
+	int raw;	//åŸææ–™æ ¼çŠ¶æ€
+	int ok;		//äº§å“æ ¼çŠ¶æ€
 } StationInfo;
 
 
-//¹¤×÷Ì¨Î»ÖÃĞÅÏ¢±í
+//å·¥ä½œå°ä½ç½®ä¿¡æ¯è¡¨
 extern StationInfo station_info_table[STATION_MAX_NUM];
 
-//ĞÂÔöÒ»¸ö¹¤×÷Ì¨ĞÅÏ¢
+//æ–°å¢ä¸€ä¸ªå·¥ä½œå°ä¿¡æ¯
 void addStationInfo(int type, float x, float y);
 
-//¸üĞÂÒ»¸ö¹¤×÷Ì¨ĞÅÏ¢
+//æ›´æ–°ä¸€ä¸ªå·¥ä½œå°ä¿¡æ¯
 void updateStationInfo(int id, int time, int raw, int ok);
 
-//¼ÆËãÁ½¸ö¹¤×÷Ì¨µÄÖ±Ïß¾àÀë
+//è®¡ç®—ä¸¤ä¸ªå·¥ä½œå°çš„ç›´çº¿è·ç¦»
 float cacuStationDis(int id1, int id2);
 
-//¹¤×÷Ì¨Ö®¼äµÄtask_id£¬ÒÔ±íÊ¾ÈÎÎñ¼äµÄÒÀÀµ
+//å·¥ä½œå°ä¹‹é—´çš„task_idï¼Œä»¥è¡¨ç¤ºä»»åŠ¡é—´çš„ä¾èµ–
 typedef struct{
 	int task_id;
 }StationTaskRelation;
 
-//¹¤×÷Ì¨¼äÁªÏµ±í
+//å·¥ä½œå°é—´è”ç³»è¡¨
 extern StationTaskRelation station_task_table[STATION_MAX_NUM][STATION_MAX_NUM];
 
-//Ìí¼Ói->jµÄÈÎÎñ±àºÅÎªtask_id
+//æ·»åŠ i->jçš„ä»»åŠ¡ç¼–å·ä¸ºtask_id
 void addStationTask(int s,int d,int task_id);
 
-//»ñÈ¡Éú²úÊ±¼ä
+//è·å–ç”Ÿäº§æ—¶é—´
 int getTimeOfStation(int id);
 
-//»ñÈ¡²úÆ·¸ñ×´Ì¬
+//è·å–äº§å“æ ¼çŠ¶æ€
 int getOkOfStation(int id);
-//»ñÈ¡Ô­²ÄÁÏ¸ñ×´Ì¬
+//è·å–åŸææ–™æ ¼çŠ¶æ€
 int getRawOfStation(int id);
 
-//»ñÈ¡¹¤×÷Ì¨×´Ì¬
+//è·å–å·¥ä½œå°çŠ¶æ€
 int getTypeOfStation(int id);
 
 
