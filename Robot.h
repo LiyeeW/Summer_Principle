@@ -20,9 +20,9 @@ typedef struct {
 	float x;	//x坐标
 	float y;	//y坐标
 
-	//增加机器人的当前任务执行状态
+	//增加机器人的当前任务执行状态，这两个变量用于运动系统和决策系统的通信交互
 	int task_id;   //分配的任务id
-	int task_status;    //0：正在前往取货点   1：已经取货了，正在前往收货点
+	int task_status;    //-1：没有任务  0：正在前往取货点   1：已经取货了，正在前往收货点	 2：已完成	
 
 } RobotInfo;
 
@@ -33,5 +33,11 @@ void addRobotInfo(float x, float y);
 
 //更新一个机器人记录
 void updateRobotInfo(int id, int s, int i, float t, float c, float o, float xS, float yS, float ori, float x, float y);
+
+//为机器人分配任务
+void addTasktoRobot(int robot_id, int id, int status);
+
+//获取当前分配的任务id
+int getTaskofRobot(int id);
 
 #endif

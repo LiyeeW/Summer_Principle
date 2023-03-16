@@ -29,4 +29,29 @@ float cacuStationDis(int id1, int id2){
 }
 
 //工作台间联系表
-StationRelation station_relation_table[STATION_MAX_NUM][STATION_MAX_NUM];
+StationTaskRelation station_task_table[STATION_MAX_NUM][STATION_MAX_NUM];
+
+//添加i->j的任务编号为task_id
+void addStationTask(int s,int d,int task_id){
+    station_task_table[s][d].task_id = task_id;
+}
+
+//获取生产时间
+int getTimeOfStation(int id){
+	return station_info_table[id].time;
+}
+
+//获取产品格状态
+int getOkOfStation(int id){
+	return station_info_table[id].ok;
+}
+
+//获取原材料格状态
+int getRawOfStation(int id){
+	return station_info_table[id].raw;
+}
+
+//获取工作台状态
+int getTypeOfStation(int id){
+	return station_info_table[id].type;
+}
