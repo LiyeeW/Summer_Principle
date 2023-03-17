@@ -31,24 +31,32 @@ void makeDecision(){
     decision_num = 0;
 
     //如果出现空闲机器人：
-    //1. 首先重新排序bids，已完成的task加入bid中
-    //2. 分配任务给空闲机器人（这个计算可能超时）
-    //从bids选择当前空闲机器人报价最高的任务进行分配，选中task被标记为忙碌，该task对应所有bid失效
-
-    //初始测试：
+    //0. （如果有任务完成）标记已完成的任务为free
+    //1. 生成能获取的任务id列表
+    //2. 为空闲机器人生成bids
+    //3. 为空闲机器人分配task
+    
+    //将已完成的任务状态更新
     for(int i=0;i<robot_num;i++){
-        for(BidInfo bid: bids_list){
-            if(bid.robot_id == i){  //分配给i号机器人
-                addDecision(0,i,6);
-                break;
-            }
+        if(robot_info_table[i].task_status == 2){
+            //当有机器人robot_id完成任务后，更新任务状态
+            tagFreeTask(getTaskofRobot(i));
         }
     }
+    bool flag = false;
+    for(int i=0;i<robot_num;i++){  
+        //为每个空闲机器人生成bids：（没有出现空闲机器人：先不管）
+        if(robot_info_table[i].task_status == -1){
+            if(!flag){
+                updateAvailList();   //初始时应该只有1，2，3生产工作台对应的任务
+                flag = true;
+            }
+            generateBids(i);
+        }
+    }
+    assignTaskfromBids();
     //end
-
-    //没有出现空闲机器人：先不管
-
-    //addDecision(0,0,6);
+    
 }
 
 //输出选择
@@ -60,8 +68,73 @@ void outputDecision(){
     }
 }
 
-//地图初始化：生成所有任务 以及 所有报价并排序 简单地分配任务
-//初始任务队列的权重 = 剩余生产时间+差价/两地的距离
+//计算具有最大price的任务并返回
+void assignTaskfromBids(){
+    //前提保证：不空闲的robot对应的bids_list为空
+    float max_price;
+    int max_robot_id;
+    while(1){
+        max_price = 0;
+        max_robot_id = -1;
+        //bids_list暴露出来
+        for(int i=0;i<robot_num;i++){
+            if(!bids_list[i].empty()){
+                while(isTaskBusy(bids_list[i][0].task_id)){
+                    bids_list[i].erase(bids_list[i].begin());
+                }
+                if(max_price<bids_list[i][0].price){
+                    max_price = bids_list[i][0].price;
+                    max_robot_id = i;
+                }
+            }
+        }
+        if(max_robot_id != -1){
+            //分配任务给竞标成功的robot，并清空其bids_list
+            addTasktoRobot(max_robot_id,bids_list[max_robot_id][0].task_id,0);
+            tagBusyTask(bids_list[max_robot_id][0].task_id);
+            clearBidList(max_robot_id);
+        }else{
+            break;
+        }    
+    }
+}
+
+//遍历所有任务，找出能前往的任务id放到avail_taskid_list
+void updateAvailList(void){
+    clearTaskIdList();  //先清空能做的所有任务
+    for(int i=0;i<task_num;i++){
+        int s = getSourceOfTask(i);
+        int d = getDestOfTask(i);
+        //source必须已经有了产品 或者 处于生产中
+        if(getTimeOfStation(s)==-1 && getOkOfStation(s)==0){
+            continue;
+        }
+        //dest必须有位置放产品 暂时不考虑dest正在生产的情况
+        int type = getTypeOfStation(s);
+        int raw = getRawOfStation(d);
+        if(((1<<(type-1)) & raw) == 0){
+            continue;
+        }
+        //当前id加入
+        addTaskId(i);
+    }
+}
+
+//为robot_id生成报价并排序，暂定的报价=机器人到生产节点的距离+差价/工作台之间的距离
+void generateBids(int robot_id){
+    clearBidList(robot_id);
+    //将avail_taskid_list暴露
+    for(int task_id: avail_taskid_list){
+        float xx = robot_info_table[robot_id].x-station_info_table[waiting_task_list[task_id].source].x;
+        float yy = robot_info_table[robot_id].y-station_info_table[waiting_task_list[task_id].source].y;
+        //报价需要进一步精确化 TODO
+        addBidInfo(robot_id,task_id,sqrt(xx+yy)+getWeightOfTask(task_id));
+    }
+    sortBidList(robot_id);
+}
+
+//地图初始化：生成所有任务
+//初始任务队列的权重 = 差价/两地的距离
 void initMap(void){
     //generate all tasks:
     for(int i=0;i<station_num;i++){
@@ -74,6 +147,7 @@ void initMap(void){
                     int value=3000;
                     float distance = cacuStationDis(i,j);
                     addTaskInfo(i,j,value,distance,value/distance);
+                    addStationTask(i,j,task_num);
                 }
                 break;
             }
@@ -83,6 +157,7 @@ void initMap(void){
                     int value=3200;
                     float distance = cacuStationDis(i,j);
                     addTaskInfo(i,j,value,distance,value/distance);
+                    addStationTask(i,j,task_num);
                 }
                 break;
             }
@@ -92,6 +167,7 @@ void initMap(void){
                     int value=3400;
                     float distance = cacuStationDis(i,j);
                     addTaskInfo(i,j,value,distance,value/distance);
+                    addStationTask(i,j,task_num);
                 }
                 break;
             }
@@ -101,6 +177,7 @@ void initMap(void){
                     int value=7100;
                     float distance = cacuStationDis(i,j);
                     addTaskInfo(i,j,value,distance,value/distance);
+                    addStationTask(i,j,task_num);
                 }
                 break;
             }
@@ -110,6 +187,7 @@ void initMap(void){
                     int value=7800;
                     float distance = cacuStationDis(i,j);
                     addTaskInfo(i,j,value,distance,value/distance);
+                    addStationTask(i,j,task_num);
                 }
                 break;
             }
@@ -119,6 +197,7 @@ void initMap(void){
                     int value=8300;
                     float distance = cacuStationDis(i,j);
                     addTaskInfo(i,j,value,distance,value/distance);
+                    addStationTask(i,j,task_num);
                 }
                 break;
             }
@@ -128,6 +207,7 @@ void initMap(void){
                     int value=29000;
                     float distance = cacuStationDis(i,j);
                     addTaskInfo(i,j,value,distance,value/distance);
+                    addStationTask(i,j,task_num);
                 }
                 break;
             }
@@ -136,15 +216,4 @@ void initMap(void){
             }
         }
     }
-    //generate all bids:
-    for(int i=0;i<robot_num;i++){
-        for(int j=0;j<task_num;j++){
-            float xx = robot_info_table[i].x-station_info_table[waiting_task_list[j].source].x;
-            float yy = robot_info_table[i].y-station_info_table[waiting_task_list[j].source].y;
-            addBidInfo(i,j,sqrt(xx+yy)); 
-            //报价需要进一步精确化 TODO
-        }
-    }
-    sortBidList();
-    //简单地分配任务
 }

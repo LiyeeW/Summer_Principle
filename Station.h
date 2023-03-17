@@ -31,13 +31,27 @@ void updateStationInfo(int id, int time, int raw, int ok);
 //计算两个工作台的直线距离
 float cacuStationDis(int id1, int id2);
 
-//工作台之间的联系
+//工作台之间的task_id，以表示任务间的依赖
 typedef struct{
-	float value; //收益
-	float distance; //距离
-}StationRelation;
+	int task_id;
+}StationTaskRelation;
 
 //工作台间联系表
-extern StationRelation station_relation_table[STATION_MAX_NUM][STATION_MAX_NUM];
+extern StationTaskRelation station_task_table[STATION_MAX_NUM][STATION_MAX_NUM];
+
+//添加i->j的任务编号为task_id
+void addStationTask(int s,int d,int task_id);
+
+//获取生产时间
+int getTimeOfStation(int id);
+
+//获取产品格状态
+int getOkOfStation(int id);
+//获取原材料格状态
+int getRawOfStation(int id);
+
+//获取工作台状态
+int getTypeOfStation(int id);
+
 
 #endif
