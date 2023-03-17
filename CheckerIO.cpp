@@ -90,9 +90,11 @@ void setDDL(int ms){
 
 //检查睡到ddl
 void waitDDL(){
-    auto wait = chrono::duration_cast<chrono::milliseconds>(deadline - chrono::steady_clock::now());
-    if (wait > chrono::milliseconds::zero()) {
-        this_thread::sleep_for(wait);
-    }
+    this_thread::sleep_until(deadline);
+    // auto wait = chrono::duration_cast<chrono::milliseconds>(deadline - chrono::steady_clock::now());
+    // if (wait > chrono::milliseconds::zero()) {
+    //     this_thread::sleep_for(wait);
+    //     //cerr<<chrono::duration_cast<chrono::milliseconds>(chrono::steady_clock::now() - deadline).count()<<endl;
+    // }
 }
 

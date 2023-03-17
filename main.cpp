@@ -15,11 +15,12 @@ int main()
 	waitDDL();
 	sendOK();
 	while(readFrameHead()){
-		setDDL(1);
+		//20-30:6000; 15:4800
+		setDDL(35);
 		readFrameAll();
 		makeDecision();
 		writeDecision();
-		waitDDL();
+		//waitDDL();
 		sendOK();
 	}
 	return 0;
