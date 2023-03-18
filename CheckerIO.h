@@ -13,8 +13,8 @@ bool readMap();
 bool readFrameHead();
 //读取输入的当前帧的剩余完整信息
 void readFrameAll();
-//输出选择信息
-void writeDecision();
+//输出执行信息
+void writeExecute();
 //设定ddl
 void setDDL(int ms);
 //检查睡到ddl

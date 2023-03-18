@@ -3,7 +3,7 @@
 #include "Station.h"
 #include "Robot.h"
 #include "Score.h"
-#include "Decision.h"
+#include "Execute.h"
 
 #include <iostream>
 #include <chrono>
@@ -76,9 +76,9 @@ void readFrameAll() {
 }
 
 //输出选择信息
-void writeDecision(){
+void writeExecute(){
     printf("%d\n", current_frame);
-    outputDecision();
+    outputExecute();  
 }
 
 

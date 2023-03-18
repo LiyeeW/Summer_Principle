@@ -3,6 +3,7 @@
 
 #include "CheckerIO.h"
 #include "Decision.h"
+#include "Execute.h"
 
 using namespace std;
 
@@ -18,8 +19,8 @@ int main()
 		//20-30:6000; 15:4800
 		setDDL(35);
 		readFrameAll();
-		makeDecision();
-		writeDecision();
+		makeExecute();
+		writeExecute();
 		//waitDDL();
 		sendOK();
 	}
