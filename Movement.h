@@ -5,6 +5,16 @@
 #include "Robot.h"
 
 
+//可调：PID参数
+// const int ORIENT_KP;
+// const int ORIENT_KI;
+// const int ORIENT_KD;
+
+// PI
+const float PI = 3.14159f;
+// 角速度上下限的绝对值
+const float ORIENT_LIMIT = PI;
+
 
 /* 用于调整单个机器人的角速度和速度
  * 1.0版本的策略：
