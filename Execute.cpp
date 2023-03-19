@@ -59,6 +59,8 @@ void doSomethingWhenPassBy(int robot_id, int station_id){
 void makeExecute(){
     //清空上一轮的执行方案
     execute_num = 0;
+    //更新运动记录
+    
     for(int i=0;i<ROBOT_NUM;i++){
         int real_station = robot_info_table[i].station;
         //如果还没到达任何工作台

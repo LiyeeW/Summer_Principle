@@ -5,17 +5,17 @@
 #include <cmath>
 #include <iostream>
 
-//(TODO)首先，在地图初始化阶段，需要调用initPid，设定PID参数
+
+//机器人运动信息表
+RobotMove robot_move_table[ROBOT_NUM];
+
+
+//(initMoveGlobal)首先，在地图初始化阶段，需要调用initPid，设定PID参数
 //(OK)之后，在每次切换目标地点时，需要调用resetPID
 //(TODO)在获取到每一帧数据后，需要调用launchPID
 //(TODO)PID的参数需要结合判题器做实验，根据经验人为设置
 //(TODO)需要先设定速度，再设定角速度，因为当速度为负时，实际朝向会加减一个PI
 
-//记录机器人当前的运动阶段：
-//1表示角速度极小、朝向准确的刹车等待，需要直线紧急减速，甚至倒退，只有距离PID
-//2表示角速度较大、朝向不准确的刹车等待，需要紧急减速到0，再原地调整方向，再直线移动，先角度PID，再距离PID
-//3表示全速锁定方向，只有角度PID
-int movement_edge_table[ROBOT_NUM];
 
 //机器人到目的地的直线路径角度表
 float direct_orient_table[ROBOT_NUM];
@@ -43,16 +43,72 @@ void resetDirectOrientTable(){
     }
 }
 
-//更新运动阶段
-void updateMoveEdge(int robot_id){
-    //
-}
 
 
 
 //获取机器人的目标工作台
 int getRobotDest(int robot_id){
     return dest_station[robot_id];
+}
+
+//获取机器人是否临近目的地
+bool getRobotApproached(int robot_id){
+    return robot_move_table[robot_id].approached;
+}
+
+//获取机器人是否锁定方向
+bool getRobotOrientLocked(int robot_id){
+    return robot_move_table[robot_id].locked;
+}
+
+//获取机器人的目的地是否需要等待
+bool getRobotDestWait(int robot_id){
+    return robot_move_table[robot_id].destWait;
+}
+
+//获取机器人运动阶段
+int getRobotMoveStage(int robot_id){
+    return robot_move_table[robot_id].stage;
+}
+
+//更新运动阶段
+void updateMoveStage(int robot_id){
+    switch(getRobotMoveStage(robot_id)){
+        case 1:{
+            //在完成当前目的之前，保持在阶段一
+            break;
+        }
+        case 2:{
+            //如果方向已完成锁定，根据是否需要等待调整到1或3
+            if(getRobotOrientLocked(robot_id)){
+                robot_move_table[robot_id].stage = (getRobotDestWait(robot_id))?1:3;
+            }
+            break;
+        }
+        case 3:{
+            //如果临近目标
+            if(getRobotApproached(robot_id)){
+                //如果方向已锁定
+                if(getRobotOrientLocked(robot_id)){
+                    //如果目的地需要等待
+                    if(getRobotDestWait(robot_id)){
+                        robot_move_table[robot_id].stage = 1;
+                    }
+                    //如果不需要等待则保持为3
+                }
+                //如果方向未锁定，无论是否需要等待，都调整到2
+                else{
+                    robot_move_table[robot_id].stage = 2;
+                }
+            }
+            break;
+        }
+    }
+}
+
+//(TODO)重置运动阶段为3，在切换目的地时调用
+void resetMoveStage(int robot_id){
+    robot_move_table[robot_id].stage = 3;
 }
 
 //(TODO调用时机)切换更新某机器人的目标工作台，此时task_status只可能是0或1
@@ -74,7 +130,6 @@ void updateRobotDest(int robot_id){
 }
 
 
-
 //(每一帧)更新某机器人的到目的地的直线距离和朝向
 void updateRobotDestDirect(int robot_id){
     int station_id = getRobotDest(robot_id);
@@ -83,7 +138,7 @@ void updateRobotDestDirect(int robot_id){
     direct_distance_table[robot_id] = sqrt(dy*dy+dx*dx);
     float orient = (float)atan(dy/dx);
     //如果不是第一次记录朝向，并且处于直线紧急减速阶段
-    if(direct_orient_table[robot_id] < 1.5*PI && movement_edge_table[robot_id] == 1){
+    if(direct_orient_table[robot_id] < 1.5*PI && getRobotMoveStage(robot_id) == 1){
         //计算朝向有无突变
         float orient_diff = abs(orient - direct_orient_table[robot_id]);
         //考虑浮点计算精度，若突变量为PI，则距离为负
@@ -93,12 +148,21 @@ void updateRobotDestDirect(int robot_id){
 }
 
 
-//(每一帧)更新机器人是否需要在临近时降速，等待生产
-void updateNeedWait(){
+//(每一帧)更新机器人是否需要在临近目的地时降速，等待生产
+void updateDestNeedWait(){
     for(int i=0;i<ROBOT_NUM;i++){
         int station_id = getRobotDest(i);
         // 机器人正在送货，或取货的源材料已准备好
         need_wait_table[i] = (robot_info_table[i].task_status == 0) && (station_info_table[station_id].ok == 0);
+    }
+}
+
+
+//每帧更新运动记录，包括直线角度与距离、是否需要等待、运动阶段等
+void updateMovePerFrame(){
+    for(int i=0;i<ROBOT_NUM;i++){
+        updateRobotDestDirect(i);
+
     }
 }
 
@@ -141,3 +205,4 @@ void initMoveGlobal(){
     orientInitPid(0.5, 0.1, 0.05);
     distanceInitPid(0.5, 0.1, 0.05);
 }
+
