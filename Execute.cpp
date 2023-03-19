@@ -24,14 +24,6 @@ void addExecute(int type, int robot, float param){
     execute_info_table[execute_num++] = {type, robot, param};
 }
 
-// 318方案：全速锁定方向
-void fullSpeedLockOrient(int robot_id){
-    //暂时拉满线速度
-    addExecute(0,robot_id,6);
-    //获取角速度
-    float omega = orientLaunchPid(robot_id);
-    addExecute(1,robot_id,omega);
-}
 
 //到达目的地后的处理函数
 void destArrived(int robot_id, int station_id){

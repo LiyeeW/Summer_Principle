@@ -15,13 +15,13 @@
 
 
 //初始化一组PID控制
-void initPidControlTable(int num, PidControl* pc, float kp, float ki, float kd, float up_limit, float low_limit);
+void initPidControlTable(PidControl* pc, float kp, float ki, float kd, float up_limit, float low_limit);
 
 //重置一个PID控制
-void resetPidControl(int id, PidControl* pc);
+void resetPidControl(PidControl* pc);
 
 //启动一个PID控制的一轮迭代，返回PID控制的输出值
-float launchPidControl(int id, PidControl* pc, float offset);
+float launchPidControl(PidControl* pc, float offset);
 
 
 #endif 
