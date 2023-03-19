@@ -93,6 +93,6 @@ void outputExecute(){
 //执行系统的初始化工作
 void initExecuteGlobal(){
     for(int i=0;i<ROBOT_NUM;i++){
-        execute_switch[i] = false;
+        execute_switch[i] = true;
     }
 }

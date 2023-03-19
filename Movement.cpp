@@ -269,6 +269,8 @@ void updateMovePerFrame(){
 
 //根据运动阶段和PID算法得到下一步的角速度和线速度
 void moveByStage(int robot_id){
+    if(current_frame<20)
+        cerr<<current_frame<<" "<<robot_id<<" "<<getRobotMoveStage(robot_id)<<endl;
     switch(getRobotMoveStage(robot_id)){
         case 1:{
             float speed = launchPidControl(&(robot_move_table[robot_id].pidDistance), getRobotDestDistance(robot_id));

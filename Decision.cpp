@@ -87,8 +87,8 @@ void assignTaskfromBids(){
             int taskid = bids_list[max_robot_id][0].task_id;
             int s = waiting_task_list[taskid].source, d = waiting_task_list[taskid].dest;
             std::cerr<<"assign task to robot "<<max_robot_id<<",s is "<<s<<",d is "<<d<<endl;
-            //cerr<<"s: "<<station_info_table[s].x<<" "<<station_info_table[s].y<<" "<<station_info_table[s].type<<endl;
-            //cerr<<"d: "<<station_info_table[d].x<<" "<<station_info_table[d].y<<" "<<station_info_table[d].type<<endl;
+            cerr<<"s: "<<station_info_table[s].x<<" "<<station_info_table[s].y<<" "<<station_info_table[s].type<<endl;
+            cerr<<"d: "<<station_info_table[d].x<<" "<<station_info_table[d].y<<" "<<station_info_table[d].type<<endl;
             //
             tagBusyTask(bids_list[max_robot_id][0].task_id);
             clearBidList(max_robot_id);
