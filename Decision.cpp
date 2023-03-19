@@ -53,7 +53,7 @@ bool isTaskConflict(int taskid){
         //当前处于任务执行状态
         if(robot_info_table[i].task_id != -1){
             if(robot_info_table[i].task_status == 0 && s == getSourceOfTask(robot_info_table[i].task_id)) return true;   //source冲突
-            if(d == getDestOfTask(robot_info_table[i].task_id) && d<8) return true;  //dest冲突
+            if(d == getDestOfTask(robot_info_table[i].task_id) && station_info_table[d].type<8) return true;  //dest冲突
         }
     }
     return false;
