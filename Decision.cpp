@@ -41,6 +41,8 @@ void makeDecision(){
         if(robot_info_table[i].task_status == 2){
             //当有机器人robot_id完成任务后，更新任务状态
             tagFreeTask(getTaskofRobot(i));
+            //标记机器人状态空闲
+            addTasktoRobot(i,-1,-1);
         }
     }
     bool flag = false;
@@ -68,6 +70,21 @@ void outputDecision(){
     }
 }
 
+//判断当前任务是否冲突，即不能两个robot前往同一个source取货，或前往同一个dest卖货
+bool isTaskConflict(int taskid){
+    int s = getSourceOfTask(taskid);
+    int d = getDestOfTask(taskid);
+    //判断冲突
+    for(int i=0;i<robot_num;i++){
+        //当前处于任务执行状态
+        if(robot_info_table[i].task_id != -1){
+            if(robot_info_table[i].task_status == 0 && s == getSourceOfTask(robot_info_table[i].task_id)) return true;   //source冲突
+            if(d == getDestOfTask(robot_info_table[i].task_id) && d<8) return true;  //dest冲突
+        }
+    }
+    return false;
+}
+
 //计算具有最大price的任务并返回
 void assignTaskfromBids(){
     //前提保证：不空闲的robot对应的bids_list为空
@@ -79,7 +96,8 @@ void assignTaskfromBids(){
         //bids_list暴露出来
         for(int i=0;i<robot_num;i++){
             if(!bids_list[i].empty()){
-                while(isTaskBusy(bids_list[i][0].task_id)){
+                //不能分配相同的任务给两个robot，此外，不能两个robot前往同一个source取货，或前往同一个dest卖货
+                while(isTaskBusy(bids_list[i][0].task_id) || isTaskConflict(bids_list[i][0].task_id)){
                     bids_list[i].erase(bids_list[i].begin());
                 }
                 if(max_price<bids_list[i][0].price){
@@ -91,6 +109,13 @@ void assignTaskfromBids(){
         if(max_robot_id != -1){
             //分配任务给竞标成功的robot，并清空其bids_list
             addTasktoRobot(max_robot_id,bids_list[max_robot_id][0].task_id,0);
+            //debug
+            int taskid = bids_list[max_robot_id][0].task_id;
+            int s = waiting_task_list[taskid].source, d = waiting_task_list[taskid].dest;
+            std::cerr<<"assign task to robot "<<max_robot_id<<",s is "<<s<<",d is "<<d<<endl;
+            //cerr<<"s: "<<station_info_table[s].x<<" "<<station_info_table[s].y<<" "<<station_info_table[s].type<<endl;
+            //cerr<<"d: "<<station_info_table[d].x<<" "<<station_info_table[d].y<<" "<<station_info_table[d].type<<endl;
+            //
             tagBusyTask(bids_list[max_robot_id][0].task_id);
             clearBidList(max_robot_id);
         }else{
@@ -112,7 +137,7 @@ void updateAvailList(void){
         //dest必须有位置放产品 暂时不考虑dest正在生产的情况
         int type = getTypeOfStation(s);
         int raw = getRawOfStation(d);
-        if(((1<<(type-1)) & raw) == 0){
+        if(((1<<type) & raw) != 0){
             continue;
         }
         //当前id加入
@@ -120,7 +145,7 @@ void updateAvailList(void){
     }
 }
 
-//为robot_id生成报价并排序，暂定的报价=机器人到生产节点的距离+差价/工作台之间的距离
+//为robot_id生成报价并排序，暂定的报价=差价/(机器人到生产节点的距离+工作台之间的距离)
 void generateBids(int robot_id){
     clearBidList(robot_id);
     //将avail_taskid_list暴露
@@ -128,7 +153,7 @@ void generateBids(int robot_id){
         float xx = robot_info_table[robot_id].x-station_info_table[waiting_task_list[task_id].source].x;
         float yy = robot_info_table[robot_id].y-station_info_table[waiting_task_list[task_id].source].y;
         //报价需要进一步精确化 TODO
-        addBidInfo(robot_id,task_id,sqrt(xx+yy)+getWeightOfTask(task_id));
+        addBidInfo(robot_id,task_id,waiting_task_list[task_id].value/(sqrt(xx+yy)+waiting_task_list[task_id].distance));
     }
     sortBidList(robot_id);
 }
@@ -216,4 +241,6 @@ void initMap(void){
             }
         }
     }
+    std::cerr<<"initmap: total "<<task_num<<" tasks"<<endl;
+    cerr<<"total robotnum: "<<robot_num<<" robots"<<endl;
 }
