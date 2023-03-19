@@ -201,7 +201,12 @@ void updateRobotDestDirect(int robot_id){
     float dy = station_info_table[station_id].y - robot_info_table[robot_id].y;
     float dx = station_info_table[station_id].x - robot_info_table[robot_id].x;
     setRobotDestDistance(robot_id, sqrt(dy*dy+dx*dx));
-    float orient = (float)atan(dy/dx);
+    float orient;
+    if(abs(dx)<0.0001) orient = (dy<0)?-0.5*PI:0.5*PI;
+    else{
+        orient = (float)atan(dy/dx);
+        if(dx<0) orient+=(dy<0)?-PI:PI;
+    }    
     //如果不是第一次记录朝向，并且处于阶段一，才会考虑越过
     if(getRobotDestOrient(robot_id) < 1.5*PI && getRobotMoveStage(robot_id) == 1){
         //考虑浮点计算精度，若突变量约为PI，则越过
@@ -227,8 +232,8 @@ void updateRobotDestWait(int robot_id){
 //运动系统必要的全局初始化工作
 void initMoveGlobal(){
     for(int i=0;i<ROBOT_NUM;i++){
-        initPidControlTable(&(robot_move_table[i].pidOrient), 0.5, 0.1, 0.05, ORIENT_LIMIT, -ORIENT_LIMIT); 
-        initPidControlTable(&(robot_move_table[i].pidDistance), 0.5, 0.1, 0.05, DIRECT_UP_LIMIT, DIRECT_LOW_LIMIT);
+        initPidControlTable(&(robot_move_table[i].pidOrient), 5, 1, 0.5, ORIENT_LIMIT, -ORIENT_LIMIT); 
+        initPidControlTable(&(robot_move_table[i].pidDistance), 0.5, 0.001, 0.05, DIRECT_UP_LIMIT, DIRECT_LOW_LIMIT);
     }
 }
 
@@ -287,7 +292,7 @@ void moveByStage(int robot_id){
         case 3:{
             float omega = launchPidControl(&(robot_move_table[robot_id].pidOrient), getRobotDestOrientOffset(robot_id));
             setRobotNextOmega(robot_id, omega);
-            setRobotNextSpeed(robot_id, DIRECT_UP_LIMIT);
+            setRobotNextSpeed(robot_id, 0.2 * DIRECT_UP_LIMIT);
             break;
         }
     }
