@@ -40,4 +40,10 @@ void addTasktoRobot(int robot_id, int id, int status);
 //获取当前分配的任务id
 int getTaskofRobot(int id);
 
+//获取当前任务状态
+int getTaskStatusofRobot(int id);
+
+//修改当前任务状态
+void setTaskStatusofRobot(int id, int status);
+
 #endif
