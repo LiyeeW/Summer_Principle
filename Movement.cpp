@@ -11,7 +11,6 @@
 RobotMove robot_move_table[ROBOT_NUM];
 
 
-//(initMoveGlobal)首先，在地图初始化阶段，需要调用initPid，设定PID参数
 //(OK)之后，在每次切换目标地点时，需要调用resetPID
 //(TODO)在获取到每一帧数据后，需要调用launchPID
 //(TODO)PID的参数需要结合判题器做实验，根据经验人为设置
@@ -67,7 +66,10 @@ float getRobotDestOrient(int robot_id){
 
 //获取机器人到目标工作台的直线朝向-机器人实际朝向的差量
 float getRobotDestOrientOffset(int robot_id){
-    return getRobotDestOrient(robot_id) - robot_info_table[robot_id].orient;
+    float offset = getRobotDestOrient(robot_id) - robot_info_table[robot_id].orient;
+    if(offset<-PI) return offset+PI;
+    if(offset>PI) return offset-PI;
+    return offset;
 }
 
 //判断机器人的方向和角速度是否满足要求
@@ -224,7 +226,7 @@ void updateRobotDestWait(int robot_id){
     if(!getRobotDestWait(robot_id)) return;
     //如果已生产完毕
     if(getOkOfStation(getRobotDest(robot_id)) == 1){
-        setRobotDestWait(robot_id, true);
+        setRobotDestWait(robot_id, false);
     }
 }
 
@@ -232,7 +234,7 @@ void updateRobotDestWait(int robot_id){
 //运动系统必要的全局初始化工作
 void initMoveGlobal(){
     for(int i=0;i<ROBOT_NUM;i++){
-        initPidControlTable(&(robot_move_table[i].pidOrient), 5, 1, 0.5, ORIENT_LIMIT, -ORIENT_LIMIT); 
+        initPidControlTable(&(robot_move_table[i].pidOrient), 0.55, 0.01, 0.05, ORIENT_LIMIT, -ORIENT_LIMIT); 
         initPidControlTable(&(robot_move_table[i].pidDistance), 0.5, 0.001, 0.05, DIRECT_UP_LIMIT, DIRECT_LOW_LIMIT);
     }
 }
@@ -274,8 +276,13 @@ void updateMovePerFrame(){
 
 //根据运动阶段和PID算法得到下一步的角速度和线速度
 void moveByStage(int robot_id){
-    if(current_frame<20)
-        cerr<<current_frame<<" "<<robot_id<<" "<<getRobotMoveStage(robot_id)<<endl;
+    if(robot_id==1){
+        cerr<<current_frame<<" "<<getRobotMoveStage(robot_id)<<" near:"<<getRobotApproached(robot_id)<<" "<<getRobotDestDistance(robot_id);
+        cerr<<" omega "<<robot_move_table[robot_id].pidOrient.offset<<" "<<robot_move_table[robot_id].pidOrient.sum_offset<<" "<<robot_move_table[robot_id].pidOrient.dif_offset<<" set omega to "<<getRobotNextOmega(robot_id)<<endl;
+        //cerr<<getRobotDestOrientOffset(robot_id)<<" "<<getRobotDestDistance(robot_id)<<endl;
+        //cerr<<robot_move_table[robot_id].pidDistance.offset<<" "<<robot_move_table[robot_id].pidDistance.sum_offset<<" "<<robot_move_table[robot_id].pidDistance.dif_offset<<" set speed to "<<getRobotNextSpeed(robot_id)<<endl;
+    }
+    //if(current_frame<20) 
     switch(getRobotMoveStage(robot_id)){
         case 1:{
             float speed = launchPidControl(&(robot_move_table[robot_id].pidDistance), getRobotDestDistance(robot_id));
@@ -292,7 +299,11 @@ void moveByStage(int robot_id){
         case 3:{
             float omega = launchPidControl(&(robot_move_table[robot_id].pidOrient), getRobotDestOrientOffset(robot_id));
             setRobotNextOmega(robot_id, omega);
-            setRobotNextSpeed(robot_id, 0.2 * DIRECT_UP_LIMIT);
+            setRobotNextSpeed(robot_id, DIRECT_UP_LIMIT);
+            // if(current_frame<5000 && robot_id == 1){
+            //     cerr<<"when "<<current_frame<<" robot "<<robot_id<<" set omega to "<<getRobotNextOmega(robot_id)<<endl;
+            //     cerr<<robot_move_table[robot_id].pidOrient.offset<<" "<<robot_move_table[robot_id].pidOrient.sum_offset<<" "<<robot_move_table[robot_id].pidOrient.dif_offset<<endl;
+            // }
             break;
         }
     }

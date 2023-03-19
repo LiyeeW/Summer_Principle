@@ -55,6 +55,7 @@ void checkExecuteSwitch(int robot_id){
     setTaskStatusofRobot(robot_id, getTaskStatusofRobot(robot_id)%2);
     //重置运动系统 
     resetMoveBeforeDepart(robot_id);
+    cerr<<robot_id<<" dest "<<getRobotDest(robot_id)<<endl;
 }
 
 //制订本帧的销售执行方案
@@ -65,7 +66,7 @@ void executeTrade(){
         int real_station = robot_info_table[i].station;
         int dest_station = getRobotDest(i);
         //如果已到达目的地，且不用等待，则执行到达处理
-        if(real_station == dest_station || getRobotDestWait(i)){
+        if(real_station == dest_station && !getRobotDestWait(i)){
             destArrivedHandler(i,dest_station);
         }
     }
