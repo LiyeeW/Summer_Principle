@@ -224,7 +224,7 @@ void updateRobotDestWait(int robot_id){
 }
 
 
-//必要的全局初始化工作
+//运动系统必要的全局初始化工作
 void initMoveGlobal(){
     for(int i=0;i<ROBOT_NUM;i++){
         initPidControlTable(&(robot_move_table[i].pidOrient), 0.5, 0.1, 0.05, ORIENT_LIMIT, -ORIENT_LIMIT); 

@@ -17,6 +17,8 @@ char execute_string[EXECUTE_TYPE_NUM][10] = {"forward", "rotate", "buy", "sell",
 ExecuteInfo execute_info_table[50];
 //执行的数量
 int execute_num = 0;
+//标记本帧需要切换目的地
+bool execute_switch[ROBOT_NUM];
 
 
 //新增执行
@@ -26,53 +28,58 @@ void addExecute(int type, int robot, float param){
 
 
 //到达目的地后的处理函数
-void destArrived(int robot_id, int station_id){
-    // 如果正在取货
-    if(robot_info_table[robot_id].task_status == 0){
-        //检查工作台的产品格
-        if(getOkOfStation(station_id)==1){
-            //购买生产好的产品
-            addExecute(2,robot_id,0);
-            //切换任务状态为送货
-            robot_info_table[robot_id].task_status = 1;
-        }
-        else{
-            //机器人已到目的地，但还在生产中，于是紧急减速
-        }
+void destArrivedHandler(int robot_id, int station_id){
+    execute_switch[robot_id] = true;
+    // 如果正在取货(执行到这已确定不用等待)
+    if(getTaskStatusofRobot(robot_id) == 0){
+        //购买生产好的产品
+        addExecute(2,robot_id,0);
+        //切换任务状态为送货
+        setTaskStatusofRobot(robot_id,1);
+    }
+    //如果正在送货
+    else{
+        //销售产品
+        addExecute(3,robot_id,0);
+        //切换任务状态为完成
+        setTaskStatusofRobot(robot_id,2);
     }
 }
 
-//路过某工作台时的工作
-void doSomethingWhenPassBy(int robot_id, int station_id){
-    cerr<<"execute: robot "<<robot_id<<" pass by station "<<station_id<<endl;
+//在运动执行前检查目标切换
+void checkExecuteSwitch(int robot_id){
+    if(!execute_switch[robot_id]) return;
+    //重置切换标记
+    execute_switch[robot_id] = false;
+    //任务状态：1还是1，2变回0
+    setTaskStatusofRobot(robot_id, getTaskStatusofRobot(robot_id)%2);
+    //重置运动系统 
+    resetMoveBeforeDepart(robot_id);
 }
 
-//（在决策确定后调用，不论并行还是串行）制订本帧的执行方案
-void makeExecute(){
-    //清空上一轮的执行方案
-    execute_num = 0;
-    //更新运动记录
-    
+//制订本帧的销售执行方案
+void executeTrade(){
+    //清空上一轮的所有执行方案
+    execute_num = 0;    
     for(int i=0;i<ROBOT_NUM;i++){
         int real_station = robot_info_table[i].station;
-        //如果还没到达任何工作台
-        //目前是根据传感器数据在到达时才判断，后续会优化为“距离多少时”判断，便于针对当前目的点状态和下一个目的的地点执行动作
-        if(real_station == -1){
-            fullSpeedLockOrient(i);
+        int dest_station = getRobotDest(i);
+        //如果已到达目的地，且不用等待，则执行到达处理
+        if(real_station == dest_station || getRobotDestWait(i)){
+            destArrivedHandler(i,dest_station);
         }
-        else{
-            int dest_station = getRobotDest(i);
-            //如果只是路过
-            if(real_station != dest_station) doSomethingWhenPassBy(i,real_station);
-            //如果已到达
-            else destArrived(i,dest_station);
-        }
-        
     }
-
 }
 
-
+//制订本帧的运动执行方案
+void executeMove(){
+    for(int i=0;i<ROBOT_NUM;i++){
+        checkExecuteSwitch(i);
+        moveByStage(i);
+        addExecute(0,i,getRobotNextSpeed(i));
+        addExecute(1,i,getRobotNextOmega(i));
+    }
+}
 
 //输出执行方案
 void outputExecute(){
@@ -80,5 +87,12 @@ void outputExecute(){
         printf("%s %d", execute_string[execute_info_table[i].type], execute_info_table[i].robot);
         if(execute_info_table[i].type<=1) printf(" %f\n", execute_info_table[i].param);
         else printf("\n");
+    }
+}
+
+//执行系统的初始化工作
+void initExecuteGlobal(){
+    for(int i=0;i<ROBOT_NUM;i++){
+        execute_switch[i] = false;
     }
 }

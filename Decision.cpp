@@ -10,26 +10,8 @@
 
 using namespace std;
 
-//选择的数量
-int decision_num = 0;
-
-
-//选择类型对应的字符串
-char decision_string[DECISION_TYPE_NUM][10] = {"forward", "rotate", "buy", "sell", "destroy"};
-//选择信息表
-DecisionInfo decision_info_table[50];
-
-
-//新增选择
-void addDecision(int type, int robot, float param){
-    decision_info_table[decision_num++] = {type, robot, param};
-}
-
 //做出选择
 void makeDecision(){
-    //清空上一轮的选择
-    decision_num = 0;
-
     //如果出现空闲机器人：
     //0. （如果有任务完成）标记已完成的任务为free
     //1. 生成能获取的任务id列表
@@ -61,14 +43,6 @@ void makeDecision(){
     
 }
 
-//输出选择
-void outputDecision(){
-    for(int i=0;i<decision_num;i++){
-        printf("%s %d", decision_string[decision_info_table[i].type], decision_info_table[i].robot);
-        if(decision_info_table[i].type<=1) printf(" %f\n", decision_info_table[i].param);
-        else printf("\n");
-    }
-}
 
 //判断当前任务是否冲突，即不能两个robot前往同一个source取货，或前往同一个dest卖货
 bool isTaskConflict(int taskid){

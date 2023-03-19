@@ -64,6 +64,22 @@ float getRobotNextOmega(int robot_id);
 //获取机器人下一步的线速度
 float getRobotNextSpeed(int robot_id);
 
+//获取机器人是否临近目的地，此时距离不可能为负
+bool getRobotApproached(int robot_id);
 
+//获取目的地是否需要等待
+bool getRobotDestWait(int robot_id);
+
+//运动系统必要的全局初始化工作
+void initMoveGlobal();
+
+//每帧更新运动记录，包括直线角度与距离、是否需要等待、运动阶段等
+void updateMovePerFrame();
+
+//根据运动阶段和PID算法得到下一步的角速度和线速度
+void moveByStage(int robot_id);
+
+//在某机器人朝新的目的地出发前，对运动系统的重置工作
+void resetMoveBeforeDepart(int robot_id);
 
 #endif
