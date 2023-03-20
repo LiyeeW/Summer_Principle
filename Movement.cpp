@@ -166,7 +166,10 @@ float getRobotNextSpeed(int robot_id){
 void updateMoveStage(int robot_id){
     switch(getRobotMoveStage(robot_id)){
         case 1:{
-            //在完成当前目的之前，保持在阶段一
+            //一旦检测到角度偏离且不是超过，则跳转到stage 2
+            if(getRobotDestPass(robot_id) && abs(getRobotDestOrientOffset(robot_id))){
+                setRobotMoveStage(robot_id, 2);
+            }
             break;
         }
         case 2:{
@@ -218,7 +221,7 @@ void updateRobotDestDirect(int robot_id){
     //如果不是第一次记录朝向，并且处于阶段一，才会考虑越过
     if(getRobotDestOrient(robot_id) < 1.5*PI && getRobotMoveStage(robot_id) == 1){
         //考虑浮点计算精度，若突变量约为PI，则越过
-        if(abs(orient - getRobotDestOrient(robot_id)) > 0.9 * PI){
+        if(abs(orient - getRobotDestOrient(robot_id)) > FLOAT_ABS * PI){
             flipRobotDestPass(robot_id);
         }
     }
@@ -283,8 +286,8 @@ void updateMovePerFrame(){
 //根据运动阶段和PID算法得到下一步的角速度和线速度
 void moveByStage(int robot_id){
     if(robot_id==0){
-        cerr<<current_frame<<" stage "<<getRobotMoveStage(robot_id)<<" near:"<<getRobotApproached(robot_id)<<" "<<getRobotDestDistance(robot_id);
-        cerr<<" omega "<<robot_move_table[robot_id].pidOrient.offset<<" "<<robot_move_table[robot_id].pidOrient.sum_offset<<" "<<robot_move_table[robot_id].pidOrient.dif_offset<<" set omega to "<<getRobotNextOmega(robot_id)<<endl;
+        cerr<<current_frame<<" stage "<<getRobotMoveStage(robot_id)<<" near:"<<getRobotApproached(robot_id)<<" orientOffset "<<getRobotDestOrientOffset(robot_id);
+        cerr<<" distance "<<robot_move_table[robot_id].pidDistance.offset<<" "<<robot_move_table[robot_id].pidDistance.sum_offset<<" "<<robot_move_table[robot_id].pidDistance.dif_offset<<" set speed to "<<getRobotNextSpeed(robot_id)<<endl;
         //cerr<<getRobotDestOrientOffset(robot_id)<<" "<<getRobotDestDistance(robot_id)<<endl;
         //cerr<<robot_move_table[robot_id].pidDistance.offset<<" "<<robot_move_table[robot_id].pidDistance.sum_offset<<" "<<robot_move_table[robot_id].pidDistance.dif_offset<<" set speed to "<<getRobotNextSpeed(robot_id)<<endl;
     }
