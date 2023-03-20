@@ -20,9 +20,9 @@ const float LOCK_OMEGA = 0.1;
 //可调：角速度保持近乎为零要连续多少帧才算方向稳定
 const int LOCK_FRAME = 1;
 //可调：在阶段一，角度差大于多少算偏离
-const float ORIENT_LOST = 0.1;
-//可调：浮点精度
-const float FLOAT_ABS = 0.95;
+const float ORIENT_LOST = 0.05;
+//可调：浮点精度的裕度
+const float FLOAT_MARGIN = 0.05;
 
 
 const float PI = 3.14159f;

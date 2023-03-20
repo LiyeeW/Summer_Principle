@@ -94,9 +94,22 @@ void updateRobotLastSwingFrame(int robot_id){
     if(getRobotSwing(robot_id)) setRobotLastSwingFrame(robot_id, current_frame);
 }
 
-//获取机器人是否锁定方向，返回动态判断结果
+//获取机器人是否大体调向成功，能够加速
 bool getRobotOrientLocked(int robot_id){
     return current_frame >= getRobotLastSwingFrame(robot_id) + LOCK_FRAME;
+}
+
+//a，b均为正的浮点数，比较在[-PI,PI]范围内，a是否近似小于b，用于阶段一的近距离差角判断
+bool radianLessThan(float a, float b){
+    if(a<b) return true;
+    if(abs(a-PI)<b) return true;
+    else return false;
+}
+
+//获取机器人是否精确调向成功，能够直线移动
+bool getRobotOrientLockedAccurate(int robot_id){
+    float offset = abs(getRobotDestOrientOffset(robot_id));
+    return radianLessThan(offset, ORIENT_LOST);
 }
 
 //修改机器人是否相比出发时已越过目的地
@@ -166,15 +179,16 @@ float getRobotNextSpeed(int robot_id){
 void updateMoveStage(int robot_id){
     switch(getRobotMoveStage(robot_id)){
         case 1:{
-            //一旦检测到角度偏离且不是超过，则跳转到stage 2
-            if(getRobotDestPass(robot_id) && abs(getRobotDestOrientOffset(robot_id))){
+            //一旦检测到角度偏离，则跳转到stage 2
+            if(!getRobotOrientLockedAccurate(robot_id)){
+                setRobotDestPass(robot_id, false);
                 setRobotMoveStage(robot_id, 2);
             }
             break;
         }
         case 2:{
-            //如果方向已完成锁定，根据是否需要等待调整到1或3
-            if(getRobotOrientLocked(robot_id)){
+            //如果方向精确锁定，根据是否需要等待调整到1或3
+            if(getRobotOrientLockedAccurate(robot_id)){
                 //如果临近目标并且目标需要等待，则调整到1
                 if(getRobotApproached(robot_id) && getRobotDestWait(robot_id)){
                     setRobotMoveStage(robot_id, 1);
@@ -221,7 +235,7 @@ void updateRobotDestDirect(int robot_id){
     //如果不是第一次记录朝向，并且处于阶段一，才会考虑越过
     if(getRobotDestOrient(robot_id) < 1.5*PI && getRobotMoveStage(robot_id) == 1){
         //考虑浮点计算精度，若突变量约为PI，则越过
-        if(abs(orient - getRobotDestOrient(robot_id)) > FLOAT_ABS * PI){
+        if(abs(abs(orient - getRobotDestOrient(robot_id))-PI) < FLOAT_MARGIN){
             flipRobotDestPass(robot_id);
         }
     }
@@ -285,7 +299,7 @@ void updateMovePerFrame(){
 
 //根据运动阶段和PID算法得到下一步的角速度和线速度
 void moveByStage(int robot_id){
-    if(robot_id==0){
+    if(robot_id==3){
         cerr<<current_frame<<" stage "<<getRobotMoveStage(robot_id)<<" near:"<<getRobotApproached(robot_id)<<" orientOffset "<<getRobotDestOrientOffset(robot_id);
         cerr<<" distance "<<robot_move_table[robot_id].pidDistance.offset<<" "<<robot_move_table[robot_id].pidDistance.sum_offset<<" "<<robot_move_table[robot_id].pidDistance.dif_offset<<" set speed to "<<getRobotNextSpeed(robot_id)<<endl;
         //cerr<<getRobotDestOrientOffset(robot_id)<<" "<<getRobotDestDistance(robot_id)<<endl;

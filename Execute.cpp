@@ -62,6 +62,8 @@ void checkExecuteSwitch(int robot_id){
     setTaskStatusofRobot(robot_id, getTaskStatusofRobot(robot_id)%2);
     //重置运动系统 
     resetMoveBeforeDepart(robot_id);
+    //更新运动系统信息
+    updateMovePerFrame();
     cerr<<robot_id<<" dest "<<getRobotDest(robot_id)<<endl;
 }
 
