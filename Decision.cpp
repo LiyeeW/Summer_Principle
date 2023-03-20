@@ -69,9 +69,6 @@ void assignTaskfromBids(){
         max_robot_id = -1;
         //bids_list暴露出来
         for(int i=0;i<robot_num;i++){
-            if(i==1){
-                cerr<<bids_list[1][0].task_id<<" "<<bids_list[1][0].price<<endl;
-            }
             if(!bids_list[i].empty()){
                 //不能分配相同的任务给两个robot，此外，不能两个robot前往同一个source取货，或前往同一个dest卖货
                 while(isTaskBusy(bids_list[i][0].task_id) || isTaskConflict(bids_list[i][0].task_id)){
@@ -114,6 +111,7 @@ void updateAvailList(void){
         //dest必须有位置放产品 暂时不考虑dest正在生产的情况
         int type = getTypeOfStation(s);
         int raw = getRawOfStation(d);
+        //if(type==3 && d==28)           cerr<<"type="<<type<<",raw="<<raw<<endl;
         if(((1<<type) & raw) != 0){
             continue;
         }

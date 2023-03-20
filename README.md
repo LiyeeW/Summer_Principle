@@ -55,3 +55,12 @@
 8. orientOffset计算没有考虑好突变
 9. 调整角度PID参数，使得最初的角速度临近PI
 10. 将开始线速度加速的差角临界值设为0.8，不算高，因为弧线加速需要考虑更多的周围的墙壁障碍物，所以尽可能先转方向再直线加速
+
+# debug记录 by xy
+1. [INFO]../Robot/Workbench.cpp:88|Sell|Product:3 already exists.
+
+意思：目的地原材料格已满，东西卖不出去
+
+原因：每一帧的执行流程是，先执行交易指令再做决策，即executeTrade->makeDecision，导致stionInfo.raw滞后更新，从而导致错误决策
+
+解决方案：executeTrade后预更新stionInfo.raw

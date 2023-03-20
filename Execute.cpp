@@ -2,6 +2,8 @@
 #include "Station.h"
 #include "Robot.h"
 #include "Movement.h"
+#include "task.h"
+#include "Score.h"
 #include <cstring>
 #include <iostream>
 
@@ -43,6 +45,11 @@ void destArrivedHandler(int robot_id, int station_id){
         addExecute(3,robot_id,0);
         //切换任务状态为完成
         setTaskStatusofRobot(robot_id,2);
+        //预更新 目的地 原材料格
+        int taskid = getTaskofRobot(robot_id);
+        int stationid = getDestOfTask(taskid);
+        int type = station_info_table[getSourceOfTask(taskid)].type;
+        station_info_table[stationid].raw += (1<<type);
     }
 }
 
