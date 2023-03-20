@@ -67,15 +67,15 @@ float getRobotDestOrient(int robot_id){
 //获取机器人到目标工作台的直线朝向-机器人实际朝向的差量
 float getRobotDestOrientOffset(int robot_id){
     float offset = getRobotDestOrient(robot_id) - robot_info_table[robot_id].orient;
-    if(offset<-PI) return offset+PI;
-    if(offset>PI) return offset-PI;
+    if(offset<-PI) return offset+2*PI;
+    if(offset>PI) return offset-2*PI;
     return offset;
 }
 
 //判断机器人的方向和角速度是否满足要求
 bool getRobotSwing(int robot_id){
     if(abs(getRobotDestOrientOffset(robot_id)) > LOCK_ORIENT) return true;
-    if(abs(robot_info_table[robot_id].omega) > LOCK_OMEGA) return true;
+    //if(abs(robot_info_table[robot_id].omega) > LOCK_OMEGA) return true;
     return false;
 }
 
@@ -172,7 +172,13 @@ void updateMoveStage(int robot_id){
         case 2:{
             //如果方向已完成锁定，根据是否需要等待调整到1或3
             if(getRobotOrientLocked(robot_id)){
-                setRobotMoveStage(robot_id, (getRobotDestWait(robot_id))?1:3);
+                //如果临近目标并且目标需要等待，则调整到1
+                if(getRobotApproached(robot_id) && getRobotDestWait(robot_id)){
+                    setRobotMoveStage(robot_id, 1);
+                }
+                else{
+                    setRobotMoveStage(robot_id, 3);
+                }
             }
             break;
         }
@@ -234,7 +240,7 @@ void updateRobotDestWait(int robot_id){
 //运动系统必要的全局初始化工作
 void initMoveGlobal(){
     for(int i=0;i<ROBOT_NUM;i++){
-        initPidControlTable(&(robot_move_table[i].pidOrient), 0.55, 0.01, 0.05, ORIENT_LIMIT, -ORIENT_LIMIT); 
+        initPidControlTable(&(robot_move_table[i].pidOrient), 3.5, 1.5, 0.35, ORIENT_LIMIT, -ORIENT_LIMIT); 
         initPidControlTable(&(robot_move_table[i].pidDistance), 0.5, 0.001, 0.05, DIRECT_UP_LIMIT, DIRECT_LOW_LIMIT);
     }
 }
@@ -242,8 +248,8 @@ void initMoveGlobal(){
 
 //在某机器人朝新的目的地出发前，对运动系统的重置工作
 void resetMoveBeforeDepart(int robot_id){
-    //重置运动阶段为3
-    setRobotMoveStage(robot_id, 3);
+    //重置运动阶段为2
+    setRobotMoveStage(robot_id, 2);
     //重置目的地
     resetRobotDest(robot_id);
     //重置直线方向，初始直线偏角记录全部大于PI，便于后续通过新旧差值突变判断passover
@@ -276,8 +282,8 @@ void updateMovePerFrame(){
 
 //根据运动阶段和PID算法得到下一步的角速度和线速度
 void moveByStage(int robot_id){
-    if(robot_id==1){
-        cerr<<current_frame<<" "<<getRobotMoveStage(robot_id)<<" near:"<<getRobotApproached(robot_id)<<" "<<getRobotDestDistance(robot_id);
+    if(robot_id==0){
+        cerr<<current_frame<<" stage "<<getRobotMoveStage(robot_id)<<" near:"<<getRobotApproached(robot_id)<<" "<<getRobotDestDistance(robot_id);
         cerr<<" omega "<<robot_move_table[robot_id].pidOrient.offset<<" "<<robot_move_table[robot_id].pidOrient.sum_offset<<" "<<robot_move_table[robot_id].pidOrient.dif_offset<<" set omega to "<<getRobotNextOmega(robot_id)<<endl;
         //cerr<<getRobotDestOrientOffset(robot_id)<<" "<<getRobotDestDistance(robot_id)<<endl;
         //cerr<<robot_move_table[robot_id].pidDistance.offset<<" "<<robot_move_table[robot_id].pidDistance.sum_offset<<" "<<robot_move_table[robot_id].pidDistance.dif_offset<<" set speed to "<<getRobotNextSpeed(robot_id)<<endl;

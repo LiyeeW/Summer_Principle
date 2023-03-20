@@ -12,13 +12,13 @@ using namespace std;
 // const float ORIENT_KD;
 
 //可调：直线距离多少算临近，单位m
-const float APPROACH_DISTANCE = 1.2;
+const float APPROACH_DISTANCE = 0.8;
 //可调：角度偏差的绝对值在多少以内算方向对准
-const float LOCK_ORIENT = 0.1;
+const float LOCK_ORIENT = 0.8;
 //可调：角速度的绝对值在多少以内算近乎为零
 const float LOCK_OMEGA = 0.1;
 //可调：角速度保持近乎为零要连续多少帧才算方向稳定
-const int LOCK_FRAME = 10;
+const int LOCK_FRAME = 1;
 
 
 const float PI = 3.14159f;

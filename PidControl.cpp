@@ -21,9 +21,10 @@ void resetPidControl(PidControl* pc){
 
 //启动一个PID控制的一轮迭代，返回PID控制的输出值
 float launchPidControl(PidControl* pc, float offset){
-    //对积分部分清除
-    if(abs(pc->offset)>0.3 && abs(offset)<0.3) pc->sum_offset = 0;
-    pc->sum_offset += offset;
+    //offset变号时，对积分部分清除
+    if(pc->offset * offset < 0)
+        pc->sum_offset = 0; 
+    else pc->sum_offset += offset;
     pc->dif_offset = offset - pc->offset;
     float i_part = pc->ki * pc->sum_offset;
     //对积分部分约束
