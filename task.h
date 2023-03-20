@@ -57,4 +57,7 @@ void clearTaskIdList(void);
 //获取任务固定权重
 float getWeightOfTask(int id);
 
+//判断可执行任务列表是否为空
+bool isEmptyAvaiList(void);
+
 #endif

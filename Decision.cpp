@@ -69,6 +69,9 @@ void assignTaskfromBids(){
         max_robot_id = -1;
         //bids_list暴露出来
         for(int i=0;i<robot_num;i++){
+            if(i==1){
+                cerr<<bids_list[1][0].task_id<<" "<<bids_list[1][0].price<<endl;
+            }
             if(!bids_list[i].empty()){
                 //不能分配相同的任务给两个robot，此外，不能两个robot前往同一个source取货，或前往同一个dest卖货
                 while(isTaskBusy(bids_list[i][0].task_id) || isTaskConflict(bids_list[i][0].task_id)){
@@ -117,6 +120,9 @@ void updateAvailList(void){
         //当前id加入
         addTaskId(i);
     }
+    if(isEmptyAvaiList()){
+        cerr<<"---------------------------------------!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!bug:no availtasklist"<<endl;
+    }
 }
 
 //为robot_id生成报价并排序，暂定的报价=差价/(机器人到生产节点的距离+工作台之间的距离)
@@ -127,7 +133,7 @@ void generateBids(int robot_id){
         float xx = robot_info_table[robot_id].x-station_info_table[waiting_task_list[task_id].source].x;
         float yy = robot_info_table[robot_id].y-station_info_table[waiting_task_list[task_id].source].y;
         //报价需要进一步精确化 TODO
-        addBidInfo(robot_id,task_id,waiting_task_list[task_id].value/(sqrt(xx+yy)+waiting_task_list[task_id].distance));
+        addBidInfo(robot_id,task_id,waiting_task_list[task_id].value/(sqrt(xx*xx+yy*yy)+waiting_task_list[task_id].distance));
     }
     sortBidList(robot_id);
 }

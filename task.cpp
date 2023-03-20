@@ -63,3 +63,8 @@ void clearTaskIdList(void){
 float getWeightOfTask(int id){
     return waiting_task_list[id].weight;
 }
+
+//判断可执行任务列表是否为空
+bool isEmptyAvaiList(void){
+    return avail_taskid_list.empty();
+}
