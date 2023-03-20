@@ -173,7 +173,13 @@ float getRobotNextSpeed(int robot_id){
     return robot_move_table[robot_id].nextSpeed;
 }
 
-
+float getAverageSpeed(int robot_id){
+    //如果目的地不用等待，则全速
+    if(!getRobotDestWait(robot_id)) return DIRECT_UP_LIMIT;
+    float second = FRAME_SECOND*getWaitFrameOfStation(getRobotDest(robot_id));
+    if(second<0 || second==0) return DIRECT_UP_LIMIT;
+    return getRobotDestDistance(robot_id)/second; 
+}
 
 //(每一帧)更新运动阶段
 void updateMoveStage(int robot_id){
@@ -204,7 +210,7 @@ void updateMoveStage(int robot_id){
             if(getRobotApproached(robot_id)){
                 //如果方向已锁定
                 if(getRobotOrientLocked(robot_id)){
-                    //如果目的地需要等待
+                    //如果目的地需要等待，则原地等待
                     if(getRobotDestWait(robot_id)){
                         setRobotMoveStage(robot_id, 1);
                     }
@@ -214,6 +220,13 @@ void updateMoveStage(int robot_id){
                 else{
                     setRobotMoveStage(robot_id, 2);
                 }
+            }
+            break;
+        }
+        case 4:{
+            //如果不需要再等待，则跳回3进行综合判断
+            if(getRobotDestWait(robot_id)){
+                setRobotMoveStage(robot_id, 3);
             }
             break;
         }
@@ -322,11 +335,17 @@ void moveByStage(int robot_id){
         case 3:{
             float omega = launchPidControl(&(robot_move_table[robot_id].pidOrient), getRobotDestOrientOffset(robot_id));
             setRobotNextOmega(robot_id, omega);
-            setRobotNextSpeed(robot_id, DIRECT_UP_LIMIT);
+            setRobotNextSpeed(robot_id, getAverageSpeed(robot_id)); 
             // if(current_frame<5000 && robot_id == 1){
             //     cerr<<"when "<<current_frame<<" robot "<<robot_id<<" set omega to "<<getRobotNextOmega(robot_id)<<endl;
             //     cerr<<robot_move_table[robot_id].pidOrient.offset<<" "<<robot_move_table[robot_id].pidOrient.sum_offset<<" "<<robot_move_table[robot_id].pidOrient.dif_offset<<endl;
             // }
+            break;
+        }
+        case 4:{
+            float speed = launchPidControl(&(robot_move_table[robot_id].pidDistance), getRobotDestDistance(robot_id));
+            setRobotNextSpeed(robot_id, speed);
+            setRobotNextOmega(robot_id, 0);
             break;
         }
     }

@@ -53,5 +53,8 @@ int getRawOfStation(int id);
 //获取工作台状态
 int getTypeOfStation(int id);
 
+//获取工作台剩余生产帧数
+int getWaitFrameOfStation(int id);
+
 
 #endif

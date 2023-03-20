@@ -55,3 +55,8 @@ int getRawOfStation(int id){
 int getTypeOfStation(int id){
 	return station_info_table[id].type;
 }
+
+//获取工作台剩余生产帧数
+int getWaitFrameOfStation(int id){
+    return station_info_table[id].time;
+}
