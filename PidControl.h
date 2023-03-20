@@ -2,7 +2,7 @@
 #define pid_control_h
 
 //积分系数不能超过输出上下限的比例
-const float I_MAX_RATE = 0.2;
+const float I_MAX_RATE = 0.8;
 
 //对某个变量的PID控制的所需信息
  typedef struct {

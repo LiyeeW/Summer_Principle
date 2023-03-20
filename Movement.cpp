@@ -67,15 +67,15 @@ float getRobotDestOrient(int robot_id){
 //获取机器人到目标工作台的直线朝向-机器人实际朝向的差量
 float getRobotDestOrientOffset(int robot_id){
     float offset = getRobotDestOrient(robot_id) - robot_info_table[robot_id].orient;
-    if(offset<-PI) return offset+PI;
-    if(offset>PI) return offset-PI;
+    if(offset<-PI) return offset+2*PI;
+    if(offset>PI) return offset-2*PI;
     return offset;
 }
 
 //判断机器人的方向和角速度是否满足要求
 bool getRobotSwing(int robot_id){
     if(abs(getRobotDestOrientOffset(robot_id)) > LOCK_ORIENT) return true;
-    if(abs(robot_info_table[robot_id].omega) > LOCK_OMEGA) return true;
+    //if(abs(robot_info_table[robot_id].omega) > LOCK_OMEGA) return true;
     return false;
 }
 
@@ -240,7 +240,7 @@ void updateRobotDestWait(int robot_id){
 //运动系统必要的全局初始化工作
 void initMoveGlobal(){
     for(int i=0;i<ROBOT_NUM;i++){
-        initPidControlTable(&(robot_move_table[i].pidOrient), 0.55, 0.01, 0.05, ORIENT_LIMIT, -ORIENT_LIMIT); 
+        initPidControlTable(&(robot_move_table[i].pidOrient), 3.5, 1.5, 0.35, ORIENT_LIMIT, -ORIENT_LIMIT); 
         initPidControlTable(&(robot_move_table[i].pidDistance), 0.5, 0.001, 0.05, DIRECT_UP_LIMIT, DIRECT_LOW_LIMIT);
     }
 }
@@ -282,7 +282,7 @@ void updateMovePerFrame(){
 
 //根据运动阶段和PID算法得到下一步的角速度和线速度
 void moveByStage(int robot_id){
-    if(robot_id==1){
+    if(robot_id==0){
         cerr<<current_frame<<" stage "<<getRobotMoveStage(robot_id)<<" near:"<<getRobotApproached(robot_id)<<" "<<getRobotDestDistance(robot_id);
         cerr<<" omega "<<robot_move_table[robot_id].pidOrient.offset<<" "<<robot_move_table[robot_id].pidOrient.sum_offset<<" "<<robot_move_table[robot_id].pidOrient.dif_offset<<" set omega to "<<getRobotNextOmega(robot_id)<<endl;
         //cerr<<getRobotDestOrientOffset(robot_id)<<" "<<getRobotDestDistance(robot_id)<<endl;
@@ -299,7 +299,7 @@ void moveByStage(int robot_id){
         case 2:{
             float omega = launchPidControl(&(robot_move_table[robot_id].pidOrient), getRobotDestOrientOffset(robot_id));
             setRobotNextOmega(robot_id, omega);
-            setRobotNextSpeed(robot_id, 0.2 * DIRECT_UP_LIMIT);
+            setRobotNextSpeed(robot_id, 0);
             break;
         }
         case 3:{
