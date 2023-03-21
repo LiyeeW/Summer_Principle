@@ -45,6 +45,8 @@ void makeDecision(){
 
 
 //判断当前任务是否冲突，即不能两个robot前往同一个source取货，或前往同一个dest卖货
+//有可能发生任务列表全部冲突，无任务分配而报错的可能
+//所以放宽冲突条件，取消dest冲突
 bool isTaskConflict(int taskid){
     int s = getSourceOfTask(taskid);
     int d = getDestOfTask(taskid);
@@ -53,7 +55,7 @@ bool isTaskConflict(int taskid){
         //当前处于任务执行状态
         if(robot_info_table[i].task_id != -1){
             if(robot_info_table[i].task_status == 0 && s == getSourceOfTask(robot_info_table[i].task_id)) return true;   //source冲突
-            if(d == getDestOfTask(robot_info_table[i].task_id) && station_info_table[d].type<8) return true;  //dest冲突
+            if(d == getDestOfTask(robot_info_table[i].task_id) && station_info_table[d].type<8 && robot_info_table[i].task_status == 0) return true;  //dest冲突
         }
     }
     return false;

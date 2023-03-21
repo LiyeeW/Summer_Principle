@@ -38,6 +38,10 @@ void destArrivedHandler(int robot_id, int station_id){
         addExecute(2,robot_id,0);
         //切换任务状态为送货
         setTaskStatusofRobot(robot_id,1);
+        int taskid = getTaskofRobot(robot_id);
+        int stationid = getSourceOfTask(taskid);
+        int type = station_info_table[getSourceOfTask(taskid)].type;
+        cerr<<current_frame<<" :robot "<<robot_id<<" buy from "<<stationid<<",type="<<type<<endl;
     }
     //如果正在送货
     else{
@@ -49,6 +53,7 @@ void destArrivedHandler(int robot_id, int station_id){
         int taskid = getTaskofRobot(robot_id);
         int stationid = getDestOfTask(taskid);
         int type = station_info_table[getSourceOfTask(taskid)].type;
+        cerr<<current_frame<<" :robot "<<robot_id<<", sell to "<<stationid<<", type="<<type<<endl;
         station_info_table[stationid].raw += (1<<type);
     }
 }
@@ -64,7 +69,7 @@ void checkExecuteSwitch(int robot_id){
     resetMoveBeforeDepart(robot_id);
     //更新运动系统信息
     updateMovePerFrame();
-    cerr<<robot_id<<" dest "<<getRobotDest(robot_id)<<endl;
+    cerr<<current_frame<<": robot "<<robot_id<<" dest to "<<getRobotDest(robot_id)<<endl;
 }
 
 //制订本帧的销售执行方案

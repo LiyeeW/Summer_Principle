@@ -73,3 +73,9 @@
 原因：每一帧的执行流程是，先执行交易指令再做决策，即executeTrade->makeDecision，导致stionInfo.raw滞后更新，从而导致错误决策
 
 解决方案：executeTrade后预更新stionInfo.raw
+
+2. 程序运行错误，segmentation core dumped
+
+原因：在生成任务队列时，为了避免等待，筛选了一些冲突任务，导致任务队列有可能为空，再次访问时造成非法访问
+
+解决方案：放松了任务冲突条件，但会有大量的|Sell|Product:2 already exists.或|Buy|Robot already get product:2等错误，所以在Excute.cpp::updateRobotDestWait函数中添加了等待收货工作台的判断。但上述报错还是没有完全解决，需要进一步优化决策。

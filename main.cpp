@@ -5,6 +5,8 @@
 #include "Movement.h"
 #include "Decision.h"
 #include "Execute.h"
+#include "Score.h"
+#include<iostream>
 
 using namespace std;
 
