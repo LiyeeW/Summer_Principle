@@ -6,6 +6,11 @@
 
 using namespace std;
 
+//调转角度的预估帧数
+const int ORIENT_FRAME_COST = 25;
+//其他环节的预估花费帧数
+const int OTHER_FRAME_COST = 15;
+
 //可调：PID参数
 // const float ORIENT_KP;
 // const float ORIENT_KI;
@@ -23,6 +28,8 @@ const int LOCK_FRAME = 1;
 const float ORIENT_LOST = 0.05;
 //可调：浮点精度的裕度
 const float FLOAT_MARGIN = 0.05;
+//横坐标差小于多少时，角度算垂直
+const float TAN_X_MIN = 0.001;
 
 
 const float PI = 3.14159f;
@@ -56,6 +63,14 @@ typedef struct{
  //机器人运动信息表
 extern RobotMove robot_move_table[ROBOT_NUM];
 
+
+//功能函数：返回s1到s2的估计总花费帧数
+int getStationsFrameCost(int s1, int s2);
+
+//功能函数：返回s1到s2的估计总花费帧数，并且机器人是从s0到的s1
+int getStationsFrameCost(int s1, int s2, int s0);
+
+
 //获取机器人是否临近目的地，此时距离不可能为负
 bool getRobotApproached(int robot_id);
 
@@ -76,6 +91,12 @@ int getRobotDest(int robot_id);
 
 //重置某机器人的目标工作台，此时task_status只可能是0或1
 void resetRobotDest(int robot_id);
+
+//获取机器人的目的工作台的x坐标
+float getRobotDestAxisX(int robot_id);
+
+//获取机器人的目的工作台的y坐标
+float getRobotDestAxisY(int robot_id);
 
 //修改机器人到目标工作台的直线朝向
 void setRobotDestOrient(int robot_id, float orient);
@@ -145,5 +166,11 @@ float getRobotNextSpeed(int robot_id);
 
 //在阶段三时，通过预估匀速到达需要等待的地点
 float getAverageSpeed(int robot_id);
+
+//(每一帧)更新某机器人的到目的地的直线方向、锁定、距离、靠近、越过等信息
+void updateRobotDestDirect(int robot_id);
+
+//(每一帧)更新机器人是否需要在临近目的地时降速，等待生产
+void updateRobotDestWait(int robot_id);
 
 #endif

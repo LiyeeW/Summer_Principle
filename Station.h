@@ -56,5 +56,10 @@ int getTypeOfStation(int id);
 //获取工作台剩余生产帧数
 int getWaitFrameOfStation(int id);
 
+//获取工作站x坐标
+float getStationAxisX(int station_id);
+
+//获取工作站y坐标
+float getStationAxisY(int station_id);
 
 #endif

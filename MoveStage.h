@@ -1,6 +1,9 @@
 #ifndef move_stage_h
 #define move_stage_h
 
+//结合转向、直线运动计算
+int getRobotDestArriveFrame(int robot_id);
+
 //运动系统必要的全局初始化工作
 void initMoveGlobal();
 
