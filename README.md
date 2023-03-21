@@ -86,3 +86,7 @@
 原因：在生成任务队列时，为了避免等待，筛选了一些冲突任务，导致任务队列有可能为空，再次访问时造成非法访问
 
 解决方案：放松了任务冲突条件，但会有大量的|Sell|Product:2 already exists.或|Buy|Robot already get product:2等错误，所以在Excute.cpp::updateRobotDestWait函数中添加了等待收货工作台的判断。但上述报错还是没有完全解决，需要进一步优化决策。
+
+
+# 优化过程
+目前最优达到220w，使用的权重是value/100/(机器人到源staion的距离+1.5*两个station的距离)，曾试图增加阻塞源station和目的staion的权重，但起了反效果。
