@@ -48,3 +48,13 @@ int getTaskStatusofRobot(int id){
 void setTaskStatusofRobot(int id, int status){
 	robot_info_table[id].task_status = status;
 }
+
+//获取机器人x坐标
+float getRobotAxisX(int robot_id){
+	return robot_info_table[robot_id].x;
+}
+
+//获取机器人y坐标
+float getRobotAxisY(int robot_id){
+	return robot_info_table[robot_id].y;
+}

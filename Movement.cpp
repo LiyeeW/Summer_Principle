@@ -6,11 +6,87 @@
 #include <cmath>
 #include <iostream>
 
+//用于区分机器人和工作站的编号
+int ROB(int robot_id){
+    return robot_id - ROBOT_NUM;
+}
+
+//获取某个点的坐标，int参数表示编号，-4对应机器人0，-1对应机器人3
+void getAxis(int a, float &y, float &x){
+    if(a<0){
+        a += ROBOT_NUM;
+        y = getRobotAxisY(a), x = getRobotAxisX(a);
+    }
+    else{
+        y = getStationAxisY(a), x = getStationAxisX(a);
+    }
+}
+
+//获取两点的坐标差值，计划从a到b
+void getAxisDiff(int a, int b, float& dy, float& dx){
+    float y1, y2, x1, x2;
+    getAxis(a, y1, x1), getAxis(b, y2, x2);
+    dy = y2 - y1;
+    dx = x2 - x1;
+    
+}
+
+// 获取两点之间的距离，始终为正数
+float getDistance(int a, int b){
+    float dy, dx;
+    getAxisDiff(a, b, dy, dx);
+    return sqrt(dy*dy+dx*dx);
+}
+
+// 获取两点间的角度，计划从a到b
+float getOrient(int a, int b){
+    float dy, dx;
+    getAxisDiff(a, b, dy, dx);
+    //假设垂直
+    float orient = 0.5*PI;
+    //如果垂直且dy为负
+    if(abs(dx) < TAN_X_MIN && dy<0) orient = -orient;
+    else{
+        //算得[-0.5PI,0.5PI]范围的角度
+        orient = (float)atan(dy/dx);
+        //根据非0的dx扩大到[-PI,PI]范围的角度
+        if(dx<0) orient+=(dy<0)?-PI:PI;
+    }
+    return orient;  
+}
+
+//获取两个角度值的差，计划从o1转向o2
+float getOrientDiff(float o1, float o2){
+    float offset = o2 - o1;
+    //收束到[-PI,PI]范围的角度
+    if(offset<-PI) return offset+2*PI;
+    if(offset>PI) return offset-2*PI;
+    return offset;
+}
+
+//time以秒为单位，转为帧数
+int timeToFrame(float time){
+    return (int)(time/FRAME_SECOND);
+}
+
+//功能函数：返回s1到s2的直线全速花费帧数
+int getStationsFrameCostDirect(int s1, int s2){
+    return timeToFrame(getDistance(s1, s2)/DIRECT_UP_LIMIT);
+} 
+
+//功能函数：返回s1到s2的估计总花费帧数
+int getStationsFrameCost(int s1, int s2){
+    return getStationsFrameCostDirect(s1, s2) + ORIENT_FRAME_COST + OTHER_FRAME_COST;
+}
+
+//功能函数：返回s1到s2的估计总花费帧数，并且机器人是从s0到的s1
+int getStationsFrameCost(int s1, int s2, int s0){
+    float orient_diff = getOrientDiff(getOrient(s0, s1), getOrient(s1, s2));
+    return getStationsFrameCostDirect(s1, s2) + timeToFrame(abs(orient_diff)/ORIENT_LIMIT) + OTHER_FRAME_COST;
+}
 
 //机器人运动信息表
 RobotMove robot_move_table[ROBOT_NUM];
-
-
 
 //修改机器人运动阶段
 void setRobotMoveStage(int robot_id, int stage){
@@ -47,6 +123,16 @@ void resetRobotDest(int robot_id){
     else cerr<<"movement: robot "<<robot_id<<" task status "<<task_status<<endl;
 }
 
+//获取机器人的目的工作台的x坐标
+float getRobotDestAxisX(int robot_id){
+    return getStationAxisX(getRobotDest(robot_id));
+}
+
+//获取机器人的目的工作台的y坐标
+float getRobotDestAxisY(int robot_id){
+    return getStationAxisY(getRobotDest(robot_id));
+}
+
 //修改机器人到目标工作台的直线朝向
 void setRobotDestOrient(int robot_id, float orient){
     robot_move_table[robot_id].destOrient = orient;
@@ -59,10 +145,7 @@ float getRobotDestOrient(int robot_id){
 
 //获取机器人到目标工作台的直线朝向-机器人实际朝向的差量
 float getRobotDestOrientOffset(int robot_id){
-    float offset = getRobotDestOrient(robot_id) - robot_info_table[robot_id].orient;
-    if(offset<-PI) return offset+2*PI;
-    if(offset>PI) return offset-2*PI;
-    return offset;
+    return getOrientDiff(robot_info_table[robot_id].orient, getRobotDestOrient(robot_id));
 }
 
 //判断机器人的方向和角速度是否满足要求
@@ -166,6 +249,7 @@ float getRobotNextSpeed(int robot_id){
     return robot_move_table[robot_id].nextSpeed;
 }
 
+//在阶段三时，通过预估匀速到达需要等待的地点
 float getAverageSpeed(int robot_id){
     //如果目的地不用等待，则全速
     if(!getRobotDestWait(robot_id)) return DIRECT_UP_LIMIT;
@@ -174,3 +258,42 @@ float getAverageSpeed(int robot_id){
     return getRobotDestDistance(robot_id)/second; 
 }
 
+//(每一帧)更新某机器人的到目的地的直线方向、锁定、距离、靠近、越过等信息
+void updateRobotDestDirect(int robot_id){
+    int dest_station = getRobotDest(robot_id);
+    //更新直线距离
+    setRobotDestDistance(robot_id, getDistance(ROB(robot_id), dest_station));
+    //计算角度
+    float orient = getOrient(ROB(robot_id), dest_station);
+    //如果不是第一次记录朝向，并且处于阶段一，才会考虑越过
+    if(getRobotDestOrient(robot_id) < 1.5*PI && getRobotMoveStage(robot_id) == 1){
+        //考虑浮点计算精度，若突变量约为PI，则越过
+        if(abs(abs(orient - getRobotDestOrient(robot_id))-PI) < FLOAT_MARGIN){
+            flipRobotDestPass(robot_id);
+        }
+    }
+    setRobotDestOrient(robot_id,orient);
+    updateRobotLastSwingFrame(robot_id);
+}
+
+//(每一帧)更新机器人是否需要在临近目的地时降速，等待生产
+void updateRobotDestWait(int robot_id){
+    //一旦不用等待，就不会再变回需要等待
+    if(!getRobotDestWait(robot_id)) return;
+    //如果已生产完毕
+    int task_status = robot_info_table[robot_id].task_status;
+    if(task_status==0){
+        if(getOkOfStation(getRobotDest(robot_id)) == 1){
+            setRobotDestWait(robot_id, false);
+        }
+    }
+    else if(task_status==1){
+    //需要增加对收货工作台的等待判定，用到raw信息    TODO
+        int s = getSourceOfTask(robot_info_table[robot_id].task_id);
+        int type = station_info_table[s].type;
+        int d = getRobotDest(robot_id);
+        if((station_info_table[d].raw & (1<<type)) == 0){
+            setRobotDestWait(robot_id, false);
+        }
+    }    
+}

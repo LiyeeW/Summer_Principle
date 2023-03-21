@@ -67,6 +67,10 @@
 20. 将movement较上层的部分抽离为moveStage，便于后续增加避障MoveTrace
 
 
+## trace更新修改记录 by wly
+1. 修改原有的呆的角度pid，不仅支持朝向目标工作站，也支持朝向指定角度
+
+
 
 # debug记录 by xy
 1. [INFO]../Robot/Workbench.cpp:88|Sell|Product:3 already exists.

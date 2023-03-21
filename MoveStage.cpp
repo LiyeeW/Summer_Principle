@@ -63,50 +63,7 @@ void updateMoveStage(int robot_id){
     }
 }
 
-//(每一帧)更新某机器人的到目的地的直线方向、锁定、距离、靠近、越过等信息
-void updateRobotDestDirect(int robot_id){
-    int station_id = getRobotDest(robot_id);
-    float dy = station_info_table[station_id].y - robot_info_table[robot_id].y;
-    float dx = station_info_table[station_id].x - robot_info_table[robot_id].x;
-    setRobotDestDistance(robot_id, sqrt(dy*dy+dx*dx));
-    float orient;
-    if(abs(dx)<0.0001) orient = (dy<0)?-0.5*PI:0.5*PI;
-    else{
-        orient = (float)atan(dy/dx);
-        if(dx<0) orient+=(dy<0)?-PI:PI;
-    }    
-    //如果不是第一次记录朝向，并且处于阶段一，才会考虑越过
-    if(getRobotDestOrient(robot_id) < 1.5*PI && getRobotMoveStage(robot_id) == 1){
-        //考虑浮点计算精度，若突变量约为PI，则越过
-        if(abs(abs(orient - getRobotDestOrient(robot_id))-PI) < FLOAT_MARGIN){
-            flipRobotDestPass(robot_id);
-        }
-    }
-    setRobotDestOrient(robot_id,orient);
-    updateRobotLastSwingFrame(robot_id);
-}
 
-//(每一帧)更新机器人是否需要在临近目的地时降速，等待生产
-void updateRobotDestWait(int robot_id){
-    //一旦不用等待，就不会再变回需要等待
-    if(!getRobotDestWait(robot_id)) return;
-    //如果已生产完毕
-    int task_status = robot_info_table[robot_id].task_status;
-    if(task_status==0){
-        if(getOkOfStation(getRobotDest(robot_id)) == 1){
-            setRobotDestWait(robot_id, false);
-        }
-    }else if(task_status==1){
-    //需要增加对收货工作台的等待判定，用到raw信息    TODO
-        int s = getSourceOfTask(robot_info_table[robot_id].task_id);
-        int type = station_info_table[s].type;
-        int d = getRobotDest(robot_id);
-        if((station_info_table[d].raw & (1<<type)) == 0){
-            setRobotDestWait(robot_id, false);
-        }
-    }
-    
-}
 
 
 //运动系统必要的全局初始化工作
@@ -155,13 +112,6 @@ void updateMovePerFrame(){
 
 //根据运动阶段和PID算法得到下一步的角速度和线速度
 void moveByStage(int robot_id){
-    if(robot_id==3){
-        //cerr<<current_frame<<" stage "<<getRobotMoveStage(robot_id)<<" near:"<<getRobotApproached(robot_id)<<" orientOffset "<<getRobotDestOrientOffset(robot_id);
-        //cerr<<" distance "<<robot_move_table[robot_id].pidDistance.offset<<" "<<robot_move_table[robot_id].pidDistance.sum_offset<<" "<<robot_move_table[robot_id].pidDistance.dif_offset<<" set speed to "<<getRobotNextSpeed(robot_id)<<endl;
-        //cerr<<getRobotDestOrientOffset(robot_id)<<" "<<getRobotDestDistance(robot_id)<<endl;
-        //cerr<<robot_move_table[robot_id].pidDistance.offset<<" "<<robot_move_table[robot_id].pidDistance.sum_offset<<" "<<robot_move_table[robot_id].pidDistance.dif_offset<<" set speed to "<<getRobotNextSpeed(robot_id)<<endl;
-    }
-    //if(current_frame<20) 
     switch(getRobotMoveStage(robot_id)){
         case 1:{
             float speed = launchPidControl(&(robot_move_table[robot_id].pidDistance), getRobotDestDistance(robot_id));
@@ -191,5 +141,10 @@ void moveByStage(int robot_id){
             setRobotNextOmega(robot_id, 0);
             break;
         }
+    }    
+    if(robot_id==0){
+        cerr<<current_frame<<" stage:"<<getRobotMoveStage(robot_id)<<" near:"<<getRobotApproached(robot_id)<<" distance "<<getRobotDestDistance(robot_id);
+        //cerr<<" distance "<<robot_move_table[robot_id].pidDistance.offset<<" "<<robot_move_table[robot_id].pidDistance.sum_offset<<" "<<robot_move_table[robot_id].pidDistance.dif_offset<<" set speed to "<<getRobotNextSpeed(robot_id)<<endl;
+        cerr<<" orient "<<robot_move_table[robot_id].pidOrient.offset<<" "<<robot_move_table[robot_id].pidOrient.sum_offset<<" "<<robot_move_table[robot_id].pidOrient.dif_offset<<" set speed to "<<getRobotNextOmega(robot_id)<<endl;
     }
 }

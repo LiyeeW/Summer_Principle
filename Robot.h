@@ -46,4 +46,10 @@ int getTaskStatusofRobot(int id);
 //修改当前任务状态
 void setTaskStatusofRobot(int id, int status);
 
+//获取机器人x坐标
+float getRobotAxisX(int robot_id);
+
+//获取机器人y坐标
+float getRobotAxisY(int robot_id);
+
 #endif

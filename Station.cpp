@@ -63,3 +63,13 @@ int getTypeOfStation(int id){
 int getWaitFrameOfStation(int id){
     return station_info_table[id].time;
 }
+
+//获取工作站x坐标
+float getStationAxisX(int station_id){
+    return station_info_table[station_id].x;
+}
+
+//获取工作站y坐标
+float getStationAxisY(int station_id){
+    return station_info_table[station_id].y;
+}
