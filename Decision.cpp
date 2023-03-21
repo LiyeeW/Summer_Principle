@@ -54,8 +54,38 @@ bool isTaskConflict(int taskid){
     for(int i=0;i<robot_num;i++){
         //当前处于任务执行状态
         if(robot_info_table[i].task_id != -1){
-            if(robot_info_table[i].task_status == 0 && s == getSourceOfTask(robot_info_table[i].task_id)) return true;   //source冲突
-            if(d == getDestOfTask(robot_info_table[i].task_id) && station_info_table[d].type<8 && robot_info_table[i].task_status == 0) return true;  //dest冲突
+            int another_s = getSourceOfTask(robot_info_table[i].task_id);
+            //cerr<<"robot "<<i<<" "<<another_s<<" "<<robot_info_table[i].task_status<<getTimeOfStation(s)<<endl;
+            //不能有另一个robot前往同一个s，且s并未处于阻塞状态
+            if(robot_info_table[i].task_status == 0 && s == another_s && getTimeOfStation(s)!=0) return true;   //source冲突
+
+            //不能有另一个robot前往同一个d送相同的货，且d并非处于即将能生产的状态
+            int d_type = station_info_table[d].type, s_type = station_info_table[s].type;
+            int now_raw = station_info_table[d].raw + (1<<s_type);
+            int flag = false;
+            switch(d_type){  //4~7
+                case 4:{
+                    flag = now_raw == ((1<<1)+(1<<2));  //为true表示原材料格即将满
+                    break;
+                }
+                case 5:{
+                    flag = now_raw == ((1<<1)+(1<<3));
+                    break;
+                }
+                case 6:{
+                    flag = now_raw == ((1<<2)+(1<<3));
+                    break;
+                }
+                case 7:{
+                    flag = now_raw == ((1<<4)+(1<<5)+(1<<6));
+                    break;
+                }
+                default:
+                    break;
+            }
+            flag = flag && (getTimeOfStation(d)==-1);   //true：能立马消耗原材料格
+            if(d == getDestOfTask(robot_info_table[i].task_id) && station_info_table[d].type<8
+                && getTypeOfStation(s)==getTypeOfStation(another_s) && !flag) return true;  //dest冲突
         }
     }
     return false;
@@ -76,6 +106,9 @@ void assignTaskfromBids(){
                 while(isTaskBusy(bids_list[i][0].task_id) || isTaskConflict(bids_list[i][0].task_id)){
                     bids_list[i].erase(bids_list[i].begin());
                 }
+                if(bids_list[i].empty()){
+                    cerr<<current_frame<<": no task assign for robot "<<i<<endl;
+                }
                 if(max_price<bids_list[i][0].price){
                     max_price = bids_list[i][0].price;
                     max_robot_id = i;
@@ -88,9 +121,9 @@ void assignTaskfromBids(){
             //debug
             int taskid = bids_list[max_robot_id][0].task_id;
             int s = waiting_task_list[taskid].source, d = waiting_task_list[taskid].dest;
-            std::cerr<<"assign task to robot "<<max_robot_id<<",s is "<<s<<",d is "<<d<<endl;
-            cerr<<"s: "<<station_info_table[s].x<<" "<<station_info_table[s].y<<" "<<station_info_table[s].type<<endl;
-            cerr<<"d: "<<station_info_table[d].x<<" "<<station_info_table[d].y<<" "<<station_info_table[d].type<<endl;
+            std::cerr<<"assign task to robot "<<max_robot_id<<",s is "<<s<<",d is "<<d<<":  ";
+            cerr<<"     s: ("<<station_info_table[s].x<<", "<<station_info_table[s].y<<"), type="<<station_info_table[s].type;
+            cerr<<"     d: ("<<station_info_table[d].x<<", "<<station_info_table[d].y<<"), type="<<station_info_table[d].type<<endl;
             //
             tagBusyTask(bids_list[max_robot_id][0].task_id);
             clearBidList(max_robot_id);
@@ -107,18 +140,42 @@ void updateAvailList(void){
         int s = getSourceOfTask(i);
         int d = getDestOfTask(i);
         //source必须已经有了产品 或者 处于生产中
-        if(getTimeOfStation(s)==-1 && getOkOfStation(s)==0){
+        //source处于生产的时间不能过长
+        //需要考虑到初始状态下每个staion的ok=0，且status=-1
+        if((getTimeOfStation(s)==-1 || getTimeOfStation(s)>200) && getOkOfStation(s)==0){        //ok=0的情况下不可能出现time=0
             continue;
         }
-        //dest必须有位置放产品 暂时不考虑dest正在生产的情况
+        //dest必须有位置放产品
+        //如果dest即将消耗现在的原材料进入生产，也考虑进来
         int type = getTypeOfStation(s);
         int raw = getRawOfStation(d);
-        //if(type==3 && d==28)           cerr<<"type="<<type<<",raw="<<raw<<endl;
-        if(((1<<type) & raw) != 0){
-            continue;
+        int flag = false;   //为true表示原材料格已满
+        switch(getTypeOfStation(d)){  //4~7
+            case 4:{
+                flag = raw == ((1<<1)+(1<<2));  //为true表示原材料格即将满
+                break;
+            }
+            case 5:{
+                flag = raw == ((1<<1)+(1<<3));
+                break;
+            }
+            case 6:{
+                flag = raw == ((1<<2)+(1<<3));
+                break;
+            }
+            case 7:{
+                flag = raw == ((1<<4)+(1<<5)+(1<<6));
+                break;
+            }
+            default:
+                break;
         }
-        //当前id加入
-        addTaskId(i);
+        //当前产品格为空，原材料格已满，说明正在进行生产
+        //或是当前有对应的空闲原材料格
+        if((flag && getOkOfStation(d)==0) || ((1<<type) & raw) == 0){   
+            //当前id加入
+            addTaskId(i);
+        }        
     }
     if(isEmptyAvaiList()){
         cerr<<"---------------------------------------!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!bug:no availtasklist"<<endl;
