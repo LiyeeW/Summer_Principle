@@ -1,6 +1,7 @@
 #include "Execute.h"
 #include "Station.h"
 #include "Robot.h"
+#include "MoveStage.h"
 #include "Movement.h"
 #include "task.h"
 #include "Score.h"

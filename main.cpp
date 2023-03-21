@@ -2,6 +2,7 @@
 //
 
 #include "CheckerIO.h"
+#include "MoveStage.h"
 #include "Movement.h"
 #include "Decision.h"
 #include "Execute.h"

@@ -56,34 +56,94 @@ typedef struct{
  //机器人运动信息表
 extern RobotMove robot_move_table[ROBOT_NUM];
 
-//获取机器人的目标工作台
-int getRobotDest(int robot_id);
-
-//进行一轮PID控制，返回角速度控制值
-float orientLaunchPid(int robot_id);
-
-//获取机器人下一步的角速度
-float getRobotNextOmega(int robot_id);
-
-//获取机器人下一步的线速度
-float getRobotNextSpeed(int robot_id);
-
 //获取机器人是否临近目的地，此时距离不可能为负
 bool getRobotApproached(int robot_id);
 
 //获取目的地是否需要等待
 bool getRobotDestWait(int robot_id);
 
-//运动系统必要的全局初始化工作
-void initMoveGlobal();
+//修改机器人运动阶段
+void setRobotMoveStage(int robot_id, int stage);
 
-//每帧更新运动记录，包括直线角度与距离、是否需要等待、运动阶段等
-void updateMovePerFrame();
+//获取机器人运动阶段
+int getRobotMoveStage(int robot_id);
 
-//根据运动阶段和PID算法得到下一步的角速度和线速度
-void moveByStage(int robot_id);
+//修改机器人的目标工作台
+void setRobotDest(int robot_id, int station_id);
 
-//在某机器人朝新的目的地出发前，对运动系统的重置工作
-void resetMoveBeforeDepart(int robot_id);
+//获取机器人的目标工作台
+int getRobotDest(int robot_id);
+
+//重置某机器人的目标工作台，此时task_status只可能是0或1
+void resetRobotDest(int robot_id);
+
+//修改机器人到目标工作台的直线朝向
+void setRobotDestOrient(int robot_id, float orient);
+
+//获取机器人到目标工作台的直线朝向
+float getRobotDestOrient(int robot_id);
+
+//获取机器人到目标工作台的直线朝向-机器人实际朝向的差量
+float getRobotDestOrientOffset(int robot_id);
+
+//判断机器人的方向和角速度是否满足要求
+bool getRobotSwing(int robot_id);
+
+//修改上一次方向和角速度不满足的帧号
+void setRobotLastSwingFrame(int robot_id, int frame);
+
+//获取上一次方向和角速度不满足的帧号
+int getRobotLastSwingFrame(int robot_id);
+
+//如果当前帧仍在摇摆，记录下来
+void updateRobotLastSwingFrame(int robot_id);
+
+//获取机器人是否大体调向成功，能够加速
+bool getRobotOrientLocked(int robot_id);
+
+//a，b均为正的浮点数，比较在[-PI,PI]范围内，a是否近似小于b，用于阶段一的近距离差角判断
+bool radianLessThan(float a, float b);
+
+//获取机器人是否精确调向成功，能够直线移动
+bool getRobotOrientLockedAccurate(int robot_id);
+
+//修改机器人是否相比出发时已越过目的地
+void setRobotDestPass(int robot_id, bool pass);
+
+//获取机器人是否相比出发时已越过目的地
+bool getRobotDestPass(int robot_id);
+
+//反转机器人是否相比出发时已越过目的地
+void flipRobotDestPass(int robot_id);
+
+//修改机器人到目标工作台的直线距离
+void setRobotDestDistance(int robot_id, float distance);
+
+//获取机器人到目标工作台的直线距离，若已越过，则返回负值
+float getRobotDestDistance(int robot_id);
+
+//修改目的地是否需要等待
+void setRobotDestWait(int robot_id, bool wait);
+
+//获取目的地是否需要等待
+bool getRobotDestWait(int robot_id);
+
+//获取机器人是否临近目的地，此时距离不可能为负
+bool getRobotApproached(int robot_id);
+
+//修改机器人下一步的角速度
+void setRobotNextOmega(int robot_id, float omega);
+
+//获取机器人下一步的角速度
+float getRobotNextOmega(int robot_id);
+
+//修改机器人下一步的线速度
+void setRobotNextSpeed(int robot_id, float speed);
+
+//获取机器人下一步的线速度
+float getRobotNextSpeed(int robot_id);
+
+//在阶段三时，通过预估匀速到达需要等待的地点
+float getAverageSpeed(int robot_id);
 
 #endif
