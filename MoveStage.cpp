@@ -143,8 +143,8 @@ void moveByStage(int robot_id){
         }
     }    
     if(robot_id==0){
-        cerr<<current_frame<<" stage:"<<getRobotMoveStage(robot_id)<<" near:"<<getRobotApproached(robot_id)<<" distance "<<getRobotDestDistance(robot_id);
+        //cerr<<current_frame<<" stage:"<<getRobotMoveStage(robot_id)<<" near:"<<getRobotApproached(robot_id)<<" distance "<<getRobotDestDistance(robot_id);
         //cerr<<" distance "<<robot_move_table[robot_id].pidDistance.offset<<" "<<robot_move_table[robot_id].pidDistance.sum_offset<<" "<<robot_move_table[robot_id].pidDistance.dif_offset<<" set speed to "<<getRobotNextSpeed(robot_id)<<endl;
-        cerr<<" orient "<<robot_move_table[robot_id].pidOrient.offset<<" "<<robot_move_table[robot_id].pidOrient.sum_offset<<" "<<robot_move_table[robot_id].pidOrient.dif_offset<<" set speed to "<<getRobotNextOmega(robot_id)<<endl;
+        //cerr<<" orient "<<robot_move_table[robot_id].pidOrient.offset<<" "<<robot_move_table[robot_id].pidOrient.sum_offset<<" "<<robot_move_table[robot_id].pidOrient.dif_offset<<" set speed to "<<getRobotNextOmega(robot_id)<<endl;
     }
 }

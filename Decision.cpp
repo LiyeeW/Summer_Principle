@@ -121,7 +121,7 @@ void assignTaskfromBids(){
             //debug
             int taskid = bids_list[max_robot_id][0].task_id;
             int s = waiting_task_list[taskid].source, d = waiting_task_list[taskid].dest;
-            std::cerr<<"assign task to robot "<<max_robot_id<<",s is "<<s<<",d is "<<d<<":  ";
+            std::cerr<<"assign task to robot "<<max_robot_id<<",price="<<max_price<<",s is "<<s<<",d is "<<d<<":  ";
             cerr<<"     s: ("<<station_info_table[s].x<<", "<<station_info_table[s].y<<"), type="<<station_info_table[s].type;
             cerr<<"     d: ("<<station_info_table[d].x<<", "<<station_info_table[d].y<<"), type="<<station_info_table[d].type<<endl;
             //
@@ -190,7 +190,43 @@ void generateBids(int robot_id){
         float xx = robot_info_table[robot_id].x-station_info_table[waiting_task_list[task_id].source].x;
         float yy = robot_info_table[robot_id].y-station_info_table[waiting_task_list[task_id].source].y;
         //报价需要进一步精确化 TODO
-        addBidInfo(robot_id,task_id,waiting_task_list[task_id].value/(sqrt(xx*xx+yy*yy)+waiting_task_list[task_id].distance));
+        //source工作台的产品格阻塞，增添对应任务的权重
+        int s = getSourceOfTask(task_id), d=getDestOfTask(task_id);
+        float extra_w_source = 0, extra_w_dest = 0;
+        if(getTimeOfStation(s) == 0 && getTypeOfStation(s)>3 && getRawOfStation(s)==0 ){
+            extra_w_source = 0.5;
+        }
+        //dest工作台就差这一个产品就进入生产状态，增加权重 TODO
+        int d_type = station_info_table[d].type, s_type = station_info_table[s].type;
+        int now_raw = station_info_table[d].raw + (1<<s_type);
+        int flag = false;
+        switch(d_type){  //4~7
+            case 4:{
+                flag = now_raw == ((1<<1)+(1<<2));  //为true表示原材料格即将满
+                break;
+            }
+            case 5:{
+                flag = now_raw == ((1<<1)+(1<<3));
+                break;
+            }
+            case 6:{
+                flag = now_raw == ((1<<2)+(1<<3));
+                break;
+            }
+            case 7:{
+                flag = now_raw == ((1<<4)+(1<<5)+(1<<6));
+                break;
+            }
+            default:
+                break;
+        }
+        flag = flag && (getOkOfStation(d)==0);   //true：能立马消耗原材料格，且此时产品格为空
+        if(flag){
+            extra_w_dest = 1.0;
+        }
+        //addBidInfo(robot_id,task_id,extra_w_source+extra_w_dest+waiting_task_list[task_id].value/sqrt(xx*xx+100*yy*yy));  //300
+        //addBidInfo(robot_id,task_id,extra_w_source+extra_w_dest+waiting_task_list[task_id].value/100/(sqrt(xx*xx+4*yy*yy)+1.5*waiting_task_list[task_id].distance));
+        addBidInfo(robot_id,task_id,waiting_task_list[task_id].value/100/(sqrt(xx*xx+yy*yy)+1.5*waiting_task_list[task_id].distance));
     }
     sortBidList(robot_id);
 }
