@@ -84,6 +84,10 @@ void executeTrade(){
         if(real_station == dest_station && !getRobotDestWait(i)){
             destArrivedHandler(i,dest_station);
         }
+        //
+        if(real_station == dest_station && getRobotDestWait(i)){
+            cerr<<"*********************"<<current_frame<<": robot "<<i<<"wait to "<<real_station<<endl;
+        }
     }
 }
 
