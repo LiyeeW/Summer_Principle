@@ -73,3 +73,32 @@ float getStationAxisX(int station_id){
 float getStationAxisY(int station_id){
     return station_info_table[station_id].y;
 }
+
+//判断工作站的原材料格是否已满
+//对于1，2，3（不需要原料的）和8，9（工作帧数为1），直接返回false
+bool isStaionFullRow(int station_id){
+    int raw = getRawOfStation(station_id); 
+    bool isflag = false;   //为true表示原材料格已满
+    switch(getTypeOfStation(station_id)){  //4~7
+        case 4:{
+            isflag = raw == ((1<<1)+(1<<2)); 
+            break;
+        }
+        case 5:{
+            isflag = raw == ((1<<1)+(1<<3));
+            break;
+        }
+        case 6:{
+            isflag = raw == ((1<<2)+(1<<3));
+            break;
+        }
+        case 7:{
+            isflag = raw == ((1<<4)+(1<<5)+(1<<6));
+            break;
+        }
+        default:{
+            break;
+        }
+    }
+    return false;
+}

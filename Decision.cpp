@@ -170,27 +170,7 @@ void updateAvailList(void){
         //如果dest即将消耗现在的原材料进入生产，也考虑进来
         int type = getTypeOfStation(s);
         int raw = getRawOfStation(d);
-        int flag = false;   //为true表示原材料格已满
-        switch(getTypeOfStation(d)){  //4~7
-            case 4:{
-                flag = raw == ((1<<1)+(1<<2)); 
-                break;
-            }
-            case 5:{
-                flag = raw == ((1<<1)+(1<<3));
-                break;
-            }
-            case 6:{
-                flag = raw == ((1<<2)+(1<<3));
-                break;
-            }
-            case 7:{
-                flag = raw == ((1<<4)+(1<<5)+(1<<6));
-                break;
-            }
-            default:
-                break;
-        }
+        int flag = isStaionFullRow(d);   //为true表示原材料格已满
         //当前产品格为空，原材料格已满，说明正在进行生产
         //或是当前有对应的空闲原材料格
         if((flag && getOkOfStation(d)==0) || ((1<<type) & raw) == 0){   
@@ -259,28 +239,7 @@ void generateBids(int robot_id){
         }
         //如果dest目前原材料格已满 且 目前产品格为空
         int dest_wait = 0;
-        int raw = getRawOfStation(d);
-        int isflag = false;   //为true表示原材料格已满
-        switch(getTypeOfStation(d)){  //4~7
-            case 4:{
-                isflag = raw == ((1<<1)+(1<<2)); 
-                break;
-            }
-            case 5:{
-                isflag = raw == ((1<<1)+(1<<3));
-                break;
-            }
-            case 6:{
-                isflag = raw == ((1<<2)+(1<<3));
-                break;
-            }
-            case 7:{
-                isflag = raw == ((1<<4)+(1<<5)+(1<<6));
-                break;
-            }
-            default:
-                break;
-        }
+        int isflag = isStaionFullRow(d);   //为true表示原材料格已满
         if(getOkOfStation(d)==0 && isflag){
             dest_wait = max(0,getTimeOfStation(d)-robot_to_source-source_to_dest-source_wait);
         }

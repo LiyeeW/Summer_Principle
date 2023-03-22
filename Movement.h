@@ -173,4 +173,10 @@ void updateRobotDestDirect(int robot_id);
 //(每一帧)更新机器人是否需要在临近目的地时降速，等待生产
 void updateRobotDestWait(int robot_id);
 
+//前提：robot刚拿到货物，目前所在是拿货工作台
+int getLimitWaitFrameOfDest(int robot_id,int limit);
+
+//前提：station_id是已经分配的某个任务的source/dest，这样才能保证一定时间内是可以 拿到/卖出货
+int getItemFrameOfStaion(int station_id,int item,int limit);
+
 #endif

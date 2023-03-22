@@ -62,4 +62,7 @@ float getStationAxisX(int station_id);
 //获取工作站y坐标
 float getStationAxisY(int station_id);
 
+//判断工作站的原材料格是否已满
+bool isStaionFullRow(int station_id);
+
 #endif
