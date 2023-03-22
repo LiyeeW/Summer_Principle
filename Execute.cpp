@@ -3,6 +3,8 @@
 #include "Robot.h"
 #include "MoveStage.h"
 #include "Movement.h"
+#include "MoveConf.h"
+#include "MoveTrace.h"
 #include "task.h"
 #include "Score.h"
 #include <cstring>
@@ -60,17 +62,23 @@ void destArrivedHandler(int robot_id, int station_id){
 }
 
 //在运动执行前检查目标切换
-void checkExecuteSwitch(int robot_id){
-    if(!execute_switch[robot_id]) return;
-    //重置切换标记
-    execute_switch[robot_id] = false;
-    //任务状态：1还是1，2变回0
-    setTaskStatusofRobot(robot_id, getTaskStatusofRobot(robot_id)%2);
-    //重置运动系统 
-    resetMoveBeforeDepart(robot_id);
+void checkExecuteSwitch(){
+    bool switched = false;
+    for(int robot_id=0; robot_id<ROBOT_NUM; robot_id++){
+        if(!execute_switch[robot_id]) continue;
+        switched = true;
+        //重置切换标记
+        execute_switch[robot_id] = false;
+        //任务状态：1还是1，2变回0
+        setTaskStatusofRobot(robot_id, getTaskStatusofRobot(robot_id)%2);
+        //重置运动系统 
+        resetMoveBeforeDepart(robot_id);
+        //重置运动轨迹
+        resetTraceBeforeDepart(robot_id);
+        cerr<<current_frame<<": robot "<<robot_id<<" dest to "<<getRobotDest(robot_id)<<endl;
+    }
     //更新运动系统信息
-    updateMovePerFrame();
-    cerr<<current_frame<<": robot "<<robot_id<<" dest to "<<getRobotDest(robot_id)<<endl;
+    if(switched) updateMovePerFrame();
 }
 
 //制订本帧的销售执行方案
@@ -89,9 +97,13 @@ void executeTrade(){
 
 //制订本帧的运动执行方案
 void executeMove(){
+    //检查并执行可能的目的地切换
+    checkExecuteSwitch();
+    //更新冲突信息
+    updateMoveConf();
     for(int i=0;i<ROBOT_NUM;i++){
-        checkExecuteSwitch(i);
-        moveByStage(i);
+        //先检查并解决可能的冲突；如果没有冲突，则继续执行常规的move
+        if(!checkMoveConf(i)) moveByStage(i);
         addExecute(0,i,getRobotNextSpeed(i));
         addExecute(1,i,getRobotNextOmega(i));
     }
@@ -111,4 +123,6 @@ void initExecuteGlobal(){
     for(int i=0;i<ROBOT_NUM;i++){
         execute_switch[i] = true;
     }
+	initMoveGlobal();
+    initMoveConfGlobal();
 }
