@@ -27,8 +27,6 @@ typedef struct {
     float yd;       //终点y坐标
     float k;        //线段的斜率，即tan(theta)=dy/dx
     float b;        //线段的截距，即y-Kx
-    //bool conflict;  //是否有冲突：几乎平行相交则不论距离；其他相交等相近时才冲突
-    //int who;        //仅在冲突时有效：-1表示冲突对象正在与别的机器人解决冲突，其他表示与之解决冲突的机器人编号
 } RobotTrace;
 
 

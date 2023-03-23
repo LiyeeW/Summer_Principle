@@ -41,3 +41,4 @@ void updateTraceLine(int robot_id){
     robot_trace_table[robot_id].k = updateTraceLineK(robot_id, dy, dx);
     robot_trace_table[robot_id].b = updateTraceLineB(robot_id);
 }
+
