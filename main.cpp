@@ -17,9 +17,8 @@ int main()
 	readMap();
 	//简单的任务队列初始化
 	initMap();
-	//执行、运动系统初始化
+	//执行系统初始化，包括执行、基础运动和避障运动
 	initExecuteGlobal();
-	initMoveGlobal();
 	//waitDDL();
 	sendOK();
 	while(readFrameHead()){

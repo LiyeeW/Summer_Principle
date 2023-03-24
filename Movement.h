@@ -19,6 +19,8 @@ const int OTHER_FRAME_COST = 15;
 //可调：直线距离多少算临近，单位m
 const float APPROACH_DISTANCE = 3.5;
 //可调：角度偏差的绝对值在多少以内可以加速
+//设0.8时224w
+//改为设0.2，使得直线路径更精确，233w
 const float LOCK_ORIENT = 0.2;
 //可调：角速度的绝对值在多少以内算近乎为零
 const float LOCK_OMEGA = 0.1;
@@ -63,6 +65,26 @@ typedef struct{
  //机器人运动信息表
 extern RobotMove robot_move_table[ROBOT_NUM];
 
+//用于区分机器人和工作站的编号
+int ROB(int robot_id);
+
+//获取某个点的坐标，int参数表示编号，-4对应机器人0，-1对应机器人3
+void getAxis(int a, float &y, float &x);
+
+//获取两点的坐标差值，计划从a到b
+void getAxisDiff(int a, int b, float &dy, float &dx);
+
+// 获取两点之间的距离，始终为正数
+float getDistance(int a, int b);
+
+// 获取两点间的角度，计划从a到b
+float getOrient(int a, int b);
+
+//获取两个角度值的差，计划从o1转向o2
+float getOrientDiff(float o1, float o2);
+
+//time以秒为单位，转为帧数
+int timeToFrame(float time);
 
 //功能函数：返回s1到s2的估计总花费帧数
 int getStationsFrameCost(int s1, int s2);
