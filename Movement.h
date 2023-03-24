@@ -17,7 +17,7 @@ const int OTHER_FRAME_COST = 15;
 // const float ORIENT_KD;
 
 //可调：直线距离多少算临近，单位m
-const float APPROACH_DISTANCE = 3.5;
+const float APPROACH_DISTANCE = 1;
 //可调：角度偏差的绝对值在多少以内可以加速
 //设0.8时224w
 //改为设0.2，使得直线路径更精确，233w
@@ -34,32 +34,21 @@ const float FLOAT_MARGIN = 0.05;
 const float TAN_X_MIN = 0.001;
 
 
-const float PI = 3.14159f;
-// 角速度上下限的绝对值
-const float ORIENT_LIMIT = PI;
-//线速度的上下限
-const float DIRECT_UP_LIMIT = 6;
-const float DIRECT_LOW_LIMIT = -2;
 // 每一帧的时间间隔，单位s
 const float FRAME_SECOND = 0.02;
 
 //机器人关于运动的重要信息
 typedef struct{
-    int stage;           //运动阶段，1是直线运动，2是低速定向，3是高速定向
     int destStation;    //目的工作台，每次切换目标地点时更新
     float destOrient;   //到目的地的直线朝向
     int lastSwingFrame; //上一次方向和角速度不满足的帧号
+    bool considerPass;  //是否需要考虑越过
     bool destPass;      //是否已越过目的地
     float destDistance; //到目的地的直线距离
     bool destWait;      //目的地是否需要等待
-    PidControl pidOrient;//角度的PID控制信息
-    PidControl pidDistance;//距离的PID控制信息
     float nextOmega;    //下一步的角速度
     float nextSpeed;    //下一步的线速度
-    //TODO
-    // bool reverse;       //在倒退，只可能在阶段一出现倒退
-    // int maybeArriveFrame;     //预计到达时的帧号
-    //TODO 避障
+    // int maybeArriveFrame;     //预计到达时的帧号  //TODO
 } RobotMove;
  
  //机器人运动信息表
@@ -99,11 +88,12 @@ bool getRobotApproached(int robot_id);
 //获取目的地是否需要等待
 bool getRobotDestWait(int robot_id);
 
-//修改机器人运动阶段
-void setRobotMoveStage(int robot_id, int stage);
 
-//获取机器人运动阶段
-int getRobotMoveStage(int robot_id);
+//修改机器人是否需要考虑越过
+void setConsiderPass(int robot_id, bool consider);
+
+//获取机器人是否需要考虑越过
+bool getConsiderPass(int robot_id);
 
 //修改机器人的目标工作台
 void setRobotDest(int robot_id, int station_id);
@@ -194,5 +184,13 @@ void updateRobotDestDirect(int robot_id);
 
 //(每一帧)更新机器人是否需要在临近目的地时降速，等待生产
 void updateRobotDestWait(int robot_id);
+
+
+//每帧更新运动记录，包括直线角度与距离、是否需要等待、运动阶段等
+void updateMovementPerFrame();
+void updateMovementPerFrame(int robot_id);
+
+//在某机器人朝新的目的地出发前，对运动系统的重置工作
+void resetMovementBeforeDepart(int robot_id);
 
 #endif

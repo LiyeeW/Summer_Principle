@@ -7,8 +7,7 @@
 
 using namespace std;
 
-//获取机器人是否静止
-bool getConfStill(int robot_id);
+
 
 //已定义的冲突类型数量，包括无冲突
 const int CONF_TYPE_NUM = 3;
@@ -18,6 +17,10 @@ const int MAX_STAGE_NUM = 5;
 
 //角色数
 const int ROLE_NUM = 2;
+
+//静止参考表
+extern bool STAGE_STILL[CONF_TYPE_NUM][MAX_STAGE_NUM][ROLE_NUM];
+
 
 
 //stage3机器人遇到其他stage机器人距离多远时，需要开始避障，单位m
@@ -51,76 +54,78 @@ typedef struct {
     int comeFrame2; //后者机器人到达窗口临界点所需的帧数
     int richFrame1; //前者机器人的目标工作台留给它的充裕帧数；如果任务紧凑，该值一般为0
     int richFrame2; //后者机器人的目标工作台留给它的充裕帧数；如果任务紧凑，该值一般为0
-    int role0;      //0号角色对应的机器人编号，TODO:role需要在识别时暂时分配，便于冲突集查找对应的机器人
-    int role1;      //1号角色对应的机器人编号
+    int role[ROLE_NUM];      //0-1号角色对应的机器人编号，TODO:role需要在识别时暂时分配，便于冲突集查找对应的机器人
 } RobotConf;
 
 
 //机器人自身的冲突解决信息记录
-typedef struct {    
-    bool solving;   //是否正在解决冲突
-    int partner;    //冲突对方的机器人编号
-    int role;       //冲突处理下的角色，0或1
-    bool still;     //是否静止，由所处的type-stage-role决定，并不是看当前速度决定
-} RobotSolve;
+// typedef struct {    
+//     bool solving;   //是否正在解决冲突
+//     int partner;    //冲突对方的机器人编号
+//     int role;       //冲突处理下的角色，0或1
+//     // TODO bool still;     //是否静止，由所处的type-stage-role决定，并不是看当前速度决定
+// } RobotSolve;
 
 
 
 //机器人之间的冲突信息表
 extern RobotConf robot_conf_table[ROBOT_NUM][ROBOT_NUM];  
 
-//机器人的冲突解决信息表
-extern RobotSolve robot_solve_table[ROBOT_NUM];
+//获取两个机器人之间的冲突对
+RobotConf* getConfPair(int a, int b);
 
-//获取机器人是否正在解决冲突
-bool getConfSolving(int robot_id);
+//获取机器人正在解决的冲突
+RobotConf* getConfSolving(int robot_id);
 
-//设置机器人是否正在解决冲突
-void setConfSolving(int robot_id, bool solving);
+//获取机器人正在解决的冲突，返回值不能为nullptr
+RobotConf* getConfSolving(int robot_id, bool must);
 
-//获取机器人解决冲突的对象
-int getConfSolvePartner(int robot_id);
-
-//设置机器人解决冲突的对象
-void setConfSolvePartner(int robot_id, int partner);
-
-//获取机器人解决冲突的角色
-int getConfSolveRole(int robot_id);
-
-//设置机器人解决冲突的角色
-void setConfSolveRole(int robot_id, int role);
+//设置机器人正在解决的冲突
+void setConfSolving(int robot_id, RobotConf* confp);
 
 //获取机器人是否静止
-bool getConfStill(int robot_id);
+bool getStageStill(int robot_id);
 
-//设置机器人是否静止
-void setConfStill(int robot_id, bool still);
+//获取机器人解决冲突的角色
+int getConfRole(int robot_id);
+
+// //获取机器人解决冲突的对象
+// int getConfSolvePartner(int robot_id);
+
+// //设置机器人解决冲突的对象
+// void setConfSolvePartner(int robot_id, int partner);
+
 
 //读取冲突类型
-int getConfType(int a, int b);
-
-//设置冲突类型
-void setConfType(int a, int b, int type);
+int getConfType(int robot_id);
 
 //读取冲突阶段
-int getConfStage(int a, int b);
+int getConfStage(int robot_id);
+
+//获取冲突角色
+int getConfRole(int robot_id);
+
+//获取机器人是否静止
+bool getStageStill(int robot_id);
+
+//设置冲突类型
+void setConfType(RobotConf* confp, int type);
+
+//读取冲突阶段
+int getConfStage(RobotConf* confp);
 
 //设置冲突阶段
-void setConfStage(int a, int b, int stage);
+void setConfStage(RobotConf* confp, int stage);
 
 //设置冲突评估值
-void setConfAssess(int a, int b, float assess);
+void setConfAssess(RobotConf* confp, float assess);
 
-//避障系统必要的全局初始化工作
-void initMoveConfGlobal();
+//执行-冲突-冲突对中，游戏开始时，全局的初始化工作
+void initConfpairGameStart();
 
 //在每一帧运动执行前，更新全局的冲突信息，包含信息和冲突状态机的更新
 void updateMoveConf();
 
-//(每一帧)检查并执行机器人的可能的冲突解决，返回false时，调用者会继续执行基础的运动系统
-bool checkMoveConf(int robot_id);
 
-//获取机器人当前正在处理的冲突信息
-RobotConf* getRobotSolvingConf(int robot_id);
 
 #endif

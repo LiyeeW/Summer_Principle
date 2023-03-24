@@ -1,3 +1,4 @@
+#include "PidControl.h"
 #include "MoveTrace.h"
 #include "MoveConf.h"
 #include "MoveConfAll.h"
@@ -5,6 +6,7 @@
 #include "MoveConfFlatOppo.h" 
 #include "MoveConfWait.h"  
 #include "Robot.h"
+#include <iostream>
 
 using namespace std;
 
@@ -12,29 +14,26 @@ using namespace std;
 
 //初始化
 ConFun confInit[CONF_TYPE_NUM] = {MoveConfRegular::init, MoveConfFlatOppo::init, MoveConfWait::init};
-//识别
+//识别 
 ConFun confRecognize[CONF_TYPE_NUM] = {MoveConfRegular::recognize, MoveConfFlatOppo::recognize, MoveConfWait::recognize};
+//检查退出
+ConFun confCheckout[CONF_TYPE_NUM] = {MoveConfRegular::checkout, MoveConfFlatOppo::checkout, MoveConfWait::checkout};
 //分配时的重置
 ConFun confReset[CONF_TYPE_NUM] = {MoveConfRegular::reset, MoveConfFlatOppo::reset, MoveConfWait::reset}; 
 //跳转
-ConFun confLaunch[CONF_TYPE_NUM] = {MoveConfRegular::launch, MoveConfFlatOppo::launch, MoveConfWait::launch};
+ConFun confJump[CONF_TYPE_NUM] = {MoveConfRegular::jump, MoveConfFlatOppo::jump, MoveConfWait::jump};
 //执行
 ConFun confExecute[CONF_TYPE_NUM] = {MoveConfRegular::execute, MoveConfFlatOppo::execute, MoveConfWait::execute};
+
+
 //冲突集，与并查集相似，记录当前集合的评分最高的冲突对
 RobotConf* newConfSet[ROBOT_NUM];
 
-
 //切换冲突类型
 void switchConfType(RobotConf* confp){
-    int a = confp->role0, b= confp->role1;
-    (*(confReset[confp->type]))(a, b);
+    (*confReset[confp->type])(confp);
 }
 
-//切换冲突类型
-void switchConfType(int a, int b, int type){
-    setConfType(a, b, type);
-    (*(confReset[type]))(a, b);
-}
 
 //清空冲突集
 void resetNewConfSet(){
@@ -45,7 +44,7 @@ void resetNewConfSet(){
 
 //更新冲突集
 void updateNewConfSet(RobotConf* confp){
-    int a = confp->role0, b= confp->role1;
+    int a = confp->role[0], b= confp->role[1];
     RobotConf* max = confp;
     if(newConfSet[a]!=nullptr && newConfSet[a]->assess > max->assess){
         max = newConfSet[a];
@@ -67,44 +66,35 @@ RobotConf* getFromNewConfSet(){
 
 //通过分配WAIT的方式清除某冲突集中还未solving的记录
 //等待对象为MAX冲突对的任一方
-RobotConf* eraseFromNewConfSet(RobotConf* confp){
+void eraseFromNewConfSet(RobotConf* confp_ing){
     for(int i=0;i<ROBOT_NUM;i++){
-        if(newConfSet[i]!=confp) continue;
-        if(!getConfSolving(i)){
-            switchConfType(i, confp->role1, MoveConfWait::LOCAL_TYPE);
+        if(newConfSet[i]!=confp_ing) continue;
+        if(getConfSolving(i) == nullptr){
+            RobotConf* confp = getConfPair(i, confp->role[0]);
+            setConfType(confp, MoveConfWait::LOCAL_TYPE); 
+            switchConfType(confp);
         }
         newConfSet[i]=nullptr;
     }
 }
 
 
-
-
-//全局的冲突系统的初始化
-void initConfGlobal(){
-    for(int i=0;i<CONF_TYPE_NUM;i++){
-        (*(confInit[i]))(0,0);
-    }
-}
-
 //识别评估一对机器人之间任何可能存在的冲突，将识别结果写进冲突表
 void recognizePairAnyConf(int a, int b){
     //如果有任何一方正在solving，那么在找到新冲突后，非solving的一方会被立刻分配为confWait
-    bool mayWait = getConfSolving(b) || getConfSolving(a);
+    bool mayWait = getConfSolving(b)!=nullptr || getConfSolving(a)!=nullptr;
+    RobotConf* confp = getConfPair(a, b);
     for(int i=0;i<CONF_TYPE_NUM;i++){
-        (*(confRecognize[i]))(a,b);
-        //新找到一个冲突对；
-        if(getConfType(a,b)!=0){
-            //立刻分配为confWait
-            if(mayWait){
-                switchConfType(a, b, MoveConfWait::LOCAL_TYPE);
+        (*confRecognize[i])(confp); //识别
+        if(confp->type!=MoveConfRegular::LOCAL_TYPE){//新找到一个冲突对；
+            if(mayWait){ //立刻分配为confWait
+                setConfType(confp, MoveConfWait::LOCAL_TYPE);
+                switchConfType(confp);
             }
-            //加入冲突集
-            else{
+            else{ //加入冲突集
                 updateNewConfSet(&(robot_conf_table[a][b]));
             }
-            //TODO假设：一对之间最多只存在一种冲突
-            return;
+            return; //TODO假设：一对之间最多只存在一种冲突
         }
     }
 }
@@ -119,19 +109,17 @@ void assignByNewConfSet(){
     }
 }
 
-//更新冲突识别和评估
-void recognizeAnyConf(){
-    //重置冲突集
-    resetNewConfSet();
-    //TODO，有可能在这里更新trace和conf的基础计算；还没想清楚基础计算和状态机计算的先后关系
+
+//新冲突的识别、评估、解析和分配
+void recognizeNewConf(){
+    resetNewConfSet();      //重置冲突集
     for(int a=0;a<ROBOT_NUM;a++){
         //TODO假设：一旦开始处理冲突，就不能切换到其他冲突，直至解决退出；后续可能设置一个紧急阈值，大于阈值可以插队切换
-        //if(getConfSolving(a)) continue;
         for(int b=a+1;b<ROBOT_NUM;b++){
             //TODO：如果双方都在处理冲突，旧的不应该被重复设置，新的冲突也切换不了
-            if(getConfSolving(b) && getConfSolving(a)) continue;
+            if(getConfSolving(b) != nullptr && getConfSolving(a) != nullptr) continue;
             //如果双方都静止，不会存在冲突
-            if(getConfStill(a) && getConfStill(b)) continue;
+            if(getStageStill(a) && getStageStill(b)) continue;
             recognizePairAnyConf(a,b);
         }
     }
@@ -139,9 +127,86 @@ void recognizeAnyConf(){
 }
 
 
-//根据基础信息更新stage
+
+//冲突解决完成，冲突类型回到regular；在regular中，切换目的地也是一种完成
+void finishConf(RobotConf* confp){
+    for(int i=0;i<ROLE_NUM;i++){
+        setConfSolving(confp->role[i], nullptr);
+    }
+    setConfType(confp, MoveConfRegular::LOCAL_TYPE);
+    switchConfType(confp);
+}
+void finishConf(int robot_id){
+    finishConf(getConfSolving(robot_id, true));
+}
+
+//旧冲突的识别和取消
+bool checkoutFinishedConf(){
+    bool done[ROBOT_NUM] = {false};
+    for(int i=0;i<ROBOT_NUM;i++){
+        RobotConf* confp = getConfSolving(i);
+        if(confp == nullptr || done[i]) continue;
+        (*confCheckout[confp->type])(confp);    //如果checkout成功，stage会变为-1
+        if(confp->stage == -1){
+            for(int r=0;r<ROLE_NUM;r++) done[confp->role[r]] = true;
+            finishConf(confp);
+        }
+    }
+    for(int i=0;i<ROBOT_NUM;i++){   //如果本轮checkout有成功的，可能再来一轮扫描会取消一个wait冲突
+        if(done[i]) return true;
+    }
+    return false;
+}
 
 
 
+//机器人切换目的地后，冲突也需要重置
+void resetConfBeforeDepart(int robot_id){
+    finishConf(robot_id);
+}
+
+//执行-冲突中，每一帧，数据更新
+void updateMoveconfPerframe(int robot_id){
+    RobotConf* confp = getConfSolving(robot_id, true);
+    (*confJump[confp->type])(confp);
+}
+
+//执行-冲突中，每一帧，数据更新
+void updateMoveconfPerframe(){
+    for(int i=0;i<ROBOT_NUM;i++){
+        RobotConf* confp = getConfSolving(i, true);
+        (*confJump[confp->type])(confp);
+    }
+}
+
+
+
+//执行-冲突中，游戏开始时，全局要做的初始化
+void initConfGameStart(){
+    initPidGameStart();     //PID参数初始化
+    initConfpairGameStart();    //冲突对的初始化
+    for(int i=0;i<CONF_TYPE_NUM;i++){
+        (*confInit[i])(nullptr);      //各个冲突类型的初始化
+    }
+}
+
+
+
+//执行-冲突
+void executeConf(){
+    while(checkoutFinishedConf()); //去掉刚解决的冲突
+    recognizeNewConf();  //加上新发现的冲突
+    bool done[ROBOT_NUM] = {false}; //标记已经执行过的，则会跳过
+    for(int i=0;i<ROBOT_NUM;i++){
+        if(done[i]) continue;
+        RobotConf* confp = getConfSolving(i, true);
+        //cerr<<" execute "<<i<<endl;
+        (*confExecute[confp->type])(confp);
+        //wait是单方执行，不能标记对方为done
+        if(confp->type != MoveConfWait::LOCAL_TYPE){
+            for(int r=0;r<ROLE_NUM;r++) done[confp->role[r]] = true;
+        }
+    }
+}
 
 

@@ -11,99 +11,90 @@ using namespace std;
 RobotConf robot_conf_table[ROBOT_NUM][ROBOT_NUM];
 
 //机器人的冲突解决信息表
-RobotSolve robot_solve_table[ROBOT_NUM]; 
+RobotConf* robot_solve_table[ROBOT_NUM];
 
+//静止参考表
+bool STAGE_STILL[CONF_TYPE_NUM][MAX_STAGE_NUM][ROLE_NUM];
 
- 
-
-
-//获取机器人解决冲突的对象
-int getConfSolvePartner(int robot_id){
-    return robot_solve_table[robot_id].partner;
+//获取两个机器人之间的冲突对
+RobotConf* getConfPair(int a, int b){
+    if(a<b) return &(robot_conf_table[a][b]);
+    return &(robot_conf_table[b][a]);
 }
 
-//设置机器人解决冲突的对象
-void setConfSolvePartner(int robot_id, int partner){
-    robot_solve_table[robot_id].partner = partner;
+//获取机器人正在解决的冲突
+RobotConf* getConfSolving(int robot_id){
+    return robot_solve_table[robot_id];
 }
 
-//获取机器人解决冲突的角色
-int getConfSolveRole(int robot_id){
-    return robot_solve_table[robot_id].role;
+//获取机器人正在解决的冲突，返回值不能为nullptr
+RobotConf* getConfSolving(int robot_id, bool must){
+    if(getConfSolving(robot_id) == nullptr) return &(robot_conf_table[robot_id][robot_id]);
 }
 
-//设置机器人解决冲突的角色
-void setConfSolveRole(int robot_id, int role){
-    robot_solve_table[robot_id].role = role;
+//设置机器人正在解决的冲突
+void setConfSolving(int robot_id, RobotConf* confp){
+    robot_solve_table[robot_id] = confp;
 }
 
 //读取冲突类型
-int getConfType(int a, int b){
-   return robot_conf_table[a][b].type;
-}
-
-//设置冲突类型
-void setConfType(int a, int b, int type){
-    robot_conf_table[a][b].type = type;
-}
-
-//设置冲突评估值
-void setConfAssess(int a, int b, float assess){
-    robot_conf_table[a][b].assess = assess;
+int getConfType(int robot_id){
+    return getConfSolving(robot_id, true)->type;
 }
 
 //读取冲突阶段
-int getConfStage(int a, int b){
-    return robot_conf_table[a][b].stage;
+int getConfStage(int robot_id){
+    return getConfSolving(robot_id, true)->stage;
 }
 
-//设置冲突阶段
-void setConfStage(int a, int b, int stage){
-    robot_conf_table[a][b].stage = stage;
-    robot_conf_table[b][a].stage = stage;
-}
-
-
-//获取机器人是否正在解决冲突
-bool getConfSolving(int robot_id){
-    return robot_solve_table[robot_id].solving;
-}
-
-//设置机器人是否正在解决冲突
-void setConfSolving(int robot_id, bool solving){
-    robot_solve_table[robot_id].solving= solving;
-}
-
-//获取机器人当前正在处理的冲突信息
-RobotConf* getRobotSolvingConf(int robot_id){
-    if(!getConfSolving(robot_id)) return nullptr;
-    int partner = getConfSolvePartner(robot_id);
-    if(partner > robot_id) return &(robot_conf_table[robot_id][partner]);
-    return &(robot_conf_table[partner][robot_id]);
+//获取冲突角色
+int getConfRole(int robot_id){
+    RobotConf* confp = getConfSolving(robot_id, true);
+    for(int i=0;i<ROLE_NUM;i++){
+        if(confp->role[i]==robot_id) return i;
+    }
+    return -1;  //ISBUG
 }
 
 //获取机器人是否静止
-bool getConfStill(int robot_id){
-    return robot_solve_table[robot_id].still;
+bool getStageStill(int robot_id){
+    int confType = getConfType(robot_id);
+    int confStage = getConfStage(robot_id); 
+    int confRole = getConfRole(robot_id);
+    return STAGE_STILL[confType][confStage][confRole];
 }
 
-//设置机器人是否静止
-void setConfStill(int robot_id, bool still){
-    robot_solve_table[robot_id].still = still;
+//设置冲突类型
+void setConfType(RobotConf* confp, int type){
+    confp->type = type;
 }
 
-//避障系统必要的全局初始化工作
-void initMoveConfGlobal(){
+//设置冲突评估值
+void setConfAssess(RobotConf* confp, float assess){
+    confp->assess = assess;
+}
+
+
+//设置冲突阶段
+void setConfStage(RobotConf* confp, int stage){
+    confp->stage = stage;
+}
+
+
+//执行-冲突-冲突对中，游戏开始时，全局的初始化工作
+void initConfpairGameStart(){
     for(int a=0;a<ROBOT_NUM;a++){
-        for(int b=a+1;b<ROBOT_NUM;b++){
-            //状态机类型的初始值是没有冲突
-            //robot_conf_table[a][b].type = -1;
+        setConfSolving(a, nullptr);
+        for(int b=a;b<ROBOT_NUM;b++){
+            robot_conf_table[a][b].role[0] = a;
+            robot_conf_table[a][b].role[1] = b;
         }
     }
 }
 
 //在每一帧运动执行前，更新全局的冲突信息，包含信息和冲突状态机的更新
-void updateMoveConf();
+void updateMoveConf(){
 
-//(每一帧)检查并执行机器人的可能的冲突解决，返回false时，调用者会继续执行基础的运动系统
-bool checkMoveConf(int robot_id);
+}
+
+
