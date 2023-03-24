@@ -7,6 +7,8 @@
 const int STATION_MAX_NUM = 50;
 //工作台数量
 extern int station_num;
+//4~7产品数量
+extern int product_num;
 
 //工作台的便于距离计算的关键信息
 typedef struct {
@@ -21,6 +23,9 @@ typedef struct {
 
 //工作台位置信息表
 extern StationInfo station_info_table[STATION_MAX_NUM];
+
+//统计各种产品当前的数量 1~7
+extern int product_info_table[10];
 
 //新增一个工作台信息
 void addStationInfo(int type, float x, float y);
@@ -64,5 +69,8 @@ float getStationAxisY(int station_id);
 
 //判断工作站的原材料格是否已满
 bool isStaionFullRow(int station_id);
+
+//更新产品统计,返回4~7产品总数
+void updateProductInfo();
 
 #endif

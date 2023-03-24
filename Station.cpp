@@ -8,6 +8,11 @@ using namespace std;
 int station_num;
 //工作台位置信息表
 StationInfo station_info_table[STATION_MAX_NUM];
+//4~7产品数量
+int product_num;
+
+//统计各种产品当前的数量 1~7
+int product_info_table[10];
 
 //新增一个工作台信息
 void addStationInfo(int type, float x, float y){
@@ -101,4 +106,18 @@ bool isStaionFullRow(int station_id){
         }
     }
     return false;
+}
+
+//更新产品统计,返回4~7产品总数
+void updateProductInfo(){
+    for(int i=4;i<=7;i++){
+        product_info_table[i]=0;
+    }
+    product_num = 0;
+    for(int i=0;i<station_num;i++){
+        if(getOkOfStation(i)==1 && getTypeOfStation(i)>=4 && getTypeOfStation(i)<=7){
+            product_num++;
+            product_info_table[getTypeOfStation(i)]++;
+        }
+    }
 }

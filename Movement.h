@@ -19,7 +19,7 @@ const int OTHER_FRAME_COST = 15;
 //可调：直线距离多少算临近，单位m
 const float APPROACH_DISTANCE = 3.5;
 //可调：角度偏差的绝对值在多少以内可以加速
-const float LOCK_ORIENT = 0.8;
+const float LOCK_ORIENT = 0.2;
 //可调：角速度的绝对值在多少以内算近乎为零
 const float LOCK_OMEGA = 0.1;
 //可调：角速度保持近乎为零要连续多少帧才算方向稳定
