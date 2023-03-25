@@ -142,6 +142,10 @@ void assignTaskfromBids(){
                         break;
                     }
                 }
+                if(bids_list[i].empty()){
+                    //cerr<<current_frame<<": no task assign for robot "<<i<<endl;
+                    continue;
+                }
                 if(max_price<bids_list[i][0].price){
                     max_price = bids_list[i][0].price;
                     max_robot_id = i;
@@ -249,8 +253,12 @@ void generateBids(int robot_id){
             else inflation += 1.0*product_num/product_info_table[d_type]/10;
         }
         ////////////////////////考虑等待时间
-        int robot_to_source = getStationsFrameCost(getDestOfTask(robot_info_table[robot_id].task_id),s);
-        int source_to_dest = getStationsFrameCost(s,d,getDestOfTask(robot_info_table[robot_id].task_id));
+        //cerr<<task_id<<" "<<robot_id<<" "<<robot_info_table[robot_id].task_id<<endl;
+        int start_id = ROB(robot_id); 
+        int robot_to_source = getStationsFrameCost(start_id,s);
+        int source_to_dest = getStationsFrameCost(s,d,start_id);
+        //int robot_to_source = getStationsFrameCost(getDestOfTask(robot_info_table[robot_id].task_id),s);
+        //int source_to_dest = getStationsFrameCost(s,d,getDestOfTask(robot_info_table[robot_id].task_id));
         int source_wait = 0;
         //如果source正在生产 且 目前产品格为空
         if(getOkOfStation(s)==0 && getTimeOfStation(s)>0){

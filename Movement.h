@@ -63,6 +63,8 @@ typedef struct{
  //机器人运动信息表
 extern RobotMove robot_move_table[ROBOT_NUM];
 
+//用于区分机器人和工作站的编号
+int ROB(int robot_id);
 
 //功能函数：返回s1到s2的估计总花费帧数
 int getStationsFrameCost(int s1, int s2);
