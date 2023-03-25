@@ -94,7 +94,48 @@ void initConfpairGameStart(){
 
 //在每一帧运动执行前，更新全局的冲突信息，包含信息和冲突状态机的更新
 void updateMoveConf(){
-
+    //先更新冲突信息表
+    for(int i=0;i<ROBOT_NUM;i++){
+        for(int j=i+1;j<ROBOT_NUM;i++){
+            robot_conf_table[i][j].distance = getDistance(i,j);
+            robot_conf_table[i][j].across = isTraceCross(i,j);
+            if(robot_conf_table[i][j].across){
+                updateMeetingInfo(i,j,robot_conf_table[i][j].x,robot_conf_table[i][j].y,robot_conf_table[i][j].orient);
+            }
+        }
+    }
 }
 
+//是否角度算平
+bool getPairFlat(RobotConf* confp){
+    return radianLessThan(confp->orient,FLAT_ANGLE,true);
+}
 
+//是否方向相向
+bool getPairOppo(RobotConf* confp){
+    return confp->orient > PI/2;
+}
+
+//获取双方到交点的距离之和
+float getPairAcrossDistSum(RobotConf* confp){
+    int id1 = (confp->role)[0];
+    int id2 = (confp->role)[1];
+    float dx1 = robot_trace_table[id1].xs - confp->x;
+    float dy1 = robot_trace_table[id1].ys - confp->y;
+    float dx2 = robot_trace_table[id2].xs - confp->x;
+    float dy2 = robot_trace_table[id2].ys - confp->y;
+    return sqrt(dx1*dx1+dy1*dy1)+sqrt(dx2*dx2+dy2*dy2);
+}
+
+//设定robot_id为新的role[0]，剩余的那个机器人编号为新的role[1]
+void setConfRole(RobotConf* confp, int robot_id){
+    if(confp->role[0]!=robot_id){
+        confp->role[1] = confp->role[0];
+        confp->role[0] = robot_id;
+    }
+}
+
+//返回在夹角中线的偏逆时针方向的一方的机器人编号
+int getPairAntiOne(RobotConf* confp){
+    
+}

@@ -37,14 +37,14 @@ void initExecuteGameStart(){
 //执行系统中，拿到每帧传感器数据后，全局需要做的更新工作
 void updateExecutePerFrame(int robot_id){
     updateMovementPerFrame(robot_id);
-    //updateMovetracePerframe(robot_id);  //TODO
+    updateMovetracePerframe(robot_id);  //TODO
     updateMoveconfPerframe(robot_id); 
 }
 
 //执行系统中，拿到每帧传感器数据后，全局需要做的更新工作
 void updateExecutePerFrame(){
     updateMovementPerFrame();
-    //updateMovetracePerframe();  //TODO
+    updateMovetracePerframe();  //TODO
     updateMoveconfPerframe();
 }
 
