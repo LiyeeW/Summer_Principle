@@ -6,11 +6,6 @@
 
 namespace MoveConfFlatSame{
 
-//本地冲突类型
-const int LOCAL_TYPE = 4;
-
-//本地stage容量（一般0空出来）
-const int LOCAL_STAGE_NUM = 2;
 
 
 

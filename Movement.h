@@ -135,7 +135,7 @@ void updateRobotLastSwingFrame(int robot_id);
 bool getRobotOrientLocked(int robot_id);
 
 //a，b均为正的浮点数，比较在[-PI,PI]范围内，a是否近似小于b，用于阶段一的近距离差角判断
-bool radianLessThan(float a, float b);
+bool radianLessThan(float a, float b, bool pi);
 
 //获取机器人是否精确调向成功，能够直线移动
 bool getRobotOrientLockedAccurate(int robot_id);
