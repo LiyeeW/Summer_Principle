@@ -138,7 +138,7 @@ void updateMeetingInfo(int robot_id1, int robot_id2, int &x,int &y,int &orident)
         y = (robot_trace_table[robot_id1].yd + robot_trace_table[robot_id2].yd)/2;
     }else{
         x = (robot_trace_table[robot_id2].b-robot_trace_table[robot_id1].b)/(robot_trace_table[robot_id1].k-robot_trace_table[robot_id2].k);
-        y = robot_trace_table[robot_id1].k*k+robot_trace_table[robot_id1].b;
+        y = robot_trace_table[robot_id1].k * x + robot_trace_table[robot_id1].b;
         float o1 = getRobotDestOrient(robot_id1), o2 = getRobotDestOrient(robot_id2);
         float delta_o;
         if(o2>o1)   delta_o = o2-o1;
