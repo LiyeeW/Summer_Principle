@@ -90,3 +90,13 @@
 
 # 优化过程
 目前最优达到220w，使用的权重是value/100/(机器人到源staion的距离+1.5*两个station的距离)，曾试图增加阻塞源station和目的staion的权重，但起了反效果。
+
+- 2023.3.24
+
+正式赛分数达到了213w，使用的权重是: *inflation\*value/100/(机器人到源staion的距离+1.5*两个station的距离)
+
+通货膨胀系数inflation=1.0*product_num/product_info_table[d_type]/10，如果product_info_table[d_type]=0，则inflation=2
+
+updateAvailList的准则是，对于source和dest，getTimeOfStation都要小于200
+
+分配任务时，使用了isTaskStationRepeat认证，阈值都是2

@@ -4,6 +4,7 @@
 #include "Score.h"
 #include "task.h"
 #include "Bid.h"
+#include "Movement.h"
 
 #include <cstring>
 #include <iostream>
@@ -24,7 +25,8 @@ void makeDecision(){
             //当有机器人robot_id完成任务后，更新任务状态
             tagFreeTask(getTaskofRobot(i));
             //标记机器人状态空闲
-            addTasktoRobot(i,-1,-1);
+            //addTasktoRobot(i,-1,-1);
+            setTaskStatusofRobot(i,-1);     //上一个任务id仍保存着，后面使用
         }
     }
     bool flag = false;
@@ -33,16 +35,44 @@ void makeDecision(){
         if(robot_info_table[i].task_status == -1){
             if(!flag){
                 updateAvailList();   //初始时应该只有1，2，3生产工作台对应的任务
+                updateProductInfo();
                 flag = true;
             }
             generateBids(i);
         }
     }
+    //cerr<<"assign now"<<endl;
     assignTaskfromBids();
+    //cerr<<current_frame<<"assigned task"<<endl;
     //end
     
 }
 
+//缓解碰撞，不能三个以上的robot前往同一个station
+bool isTaskStationRepeat(int taskid){
+    int s = getSourceOfTask(taskid);
+    int d = getDestOfTask(taskid);
+    int s_num=0, d_num=0;
+    int num = 0;
+    //if(task_num>100)    return false;   //地图1受影响会减少近10w，不影响地图4
+    for(int i=0;i<robot_num;i++){
+        //不能都走一个直线
+        if(robot_info_table[i].task_id != -1 && robot_info_table[i].task_status != -1){
+            int another_s = getSourceOfTask(robot_info_table[i].task_id);
+            int another_d = getDestOfTask(robot_info_table[i].task_id);
+            if(another_s == s)   s_num++;
+            if(station_info_table[another_s].x == station_info_table[s].x && station_info_table[d].x == station_info_table[another_d].x 
+                && station_info_table[s].x == station_info_table[d].x)    num++;  
+            if(another_d == d)     d_num++;
+        }
+    }
+    //if(task_num>50)  num=0;
+    if(s_num>=2 || d_num>=2 || num>=2){
+        return true;
+    }else{
+        return false;
+    }
+}
 
 //判断当前任务是否冲突，即不能两个robot前往同一个source取货，或前往同一个dest卖货
 //有可能发生任务列表全部冲突，无任务分配而报错的可能
@@ -53,7 +83,7 @@ bool isTaskConflict(int taskid){
     //判断冲突
     for(int i=0;i<robot_num;i++){
         //当前处于任务执行状态
-        if(robot_info_table[i].task_id != -1){
+        if(robot_info_table[i].task_id != -1 && robot_info_table[i].task_status != -1){
             int another_s = getSourceOfTask(robot_info_table[i].task_id);
             //cerr<<"robot "<<i<<" "<<another_s<<" "<<robot_info_table[i].task_status<<getTimeOfStation(s)<<endl;
             //不能有另一个robot前往同一个s，且s并未处于阻塞状态
@@ -101,13 +131,16 @@ void assignTaskfromBids(){
         max_robot_id = -1;
         //bids_list暴露出来
         for(int i=0;i<robot_num;i++){
+            //cerr<<"robot "<<i<<" "<<bids_list[i].size()<<endl;
             if(!bids_list[i].empty()){
                 //不能分配相同的任务给两个robot，此外，不能两个robot前往同一个source取货，或前往同一个dest卖货
-                while(isTaskBusy(bids_list[i][0].task_id) || isTaskConflict(bids_list[i][0].task_id)){
+                //while(isTaskBusy(bids_list[i][0].task_id) || isTaskConflict(bids_list[i][0].task_id)){
+                while(!bids_list[i].empty() && isTaskBusy(bids_list[i][0].task_id) || isTaskConflict(bids_list[i][0].task_id) || isTaskStationRepeat(bids_list[i][0].task_id)){
                     bids_list[i].erase(bids_list[i].begin());
-                }
-                if(bids_list[i].empty()){
-                    cerr<<current_frame<<": no task assign for robot "<<i<<endl;
+                    if(bids_list[i].empty()){
+                        cerr<<current_frame<<": no task assign for robot "<<i<<endl;
+                        break;
+                    }
                 }
                 if(max_price<bids_list[i][0].price){
                     max_price = bids_list[i][0].price;
@@ -142,37 +175,19 @@ void updateAvailList(void){
         //source必须已经有了产品 或者 处于生产中
         //source处于生产的时间不能过长
         //需要考虑到初始状态下每个staion的ok=0，且status=-1
-        if((getTimeOfStation(s)==-1 || getTimeOfStation(s)>200) && getOkOfStation(s)==0){        //ok=0的情况下不可能出现time=0
+        if((getTimeOfStation(s)==-1 || getTimeOfStation(s)>200) && getOkOfStation(s)==0){        //加了getTimeOfStation(s)>200)使得地图1增加了10w到了77w
+        //if(getTimeOfStation(s)==-1 && getOkOfStation(s)==0){
             continue;
         }
         //dest必须有位置放产品
         //如果dest即将消耗现在的原材料进入生产，也考虑进来
         int type = getTypeOfStation(s);
         int raw = getRawOfStation(d);
-        int flag = false;   //为true表示原材料格已满
-        switch(getTypeOfStation(d)){  //4~7
-            case 4:{
-                flag = raw == ((1<<1)+(1<<2));  //为true表示原材料格即将满
-                break;
-            }
-            case 5:{
-                flag = raw == ((1<<1)+(1<<3));
-                break;
-            }
-            case 6:{
-                flag = raw == ((1<<2)+(1<<3));
-                break;
-            }
-            case 7:{
-                flag = raw == ((1<<4)+(1<<5)+(1<<6));
-                break;
-            }
-            default:
-                break;
-        }
+        int flag = isStaionFullRow(d);   //为true表示原材料格已满
         //当前产品格为空，原材料格已满，说明正在进行生产
         //或是当前有对应的空闲原材料格
-        if((flag && getOkOfStation(d)==0) || ((1<<type) & raw) == 0){   
+        if((flag && getOkOfStation(d)==0  && getTimeOfStation(d)<200 )|| ((1<<type) & raw) == 0){   
+        //if((flag && getOkOfStation(d)==0) || ((1<<type) & raw) == 0){   
             //当前id加入
             addTaskId(i);
         }        
@@ -183,6 +198,8 @@ void updateAvailList(void){
 }
 
 //为robot_id生成报价并排序，暂定的报价=差价/(机器人到生产节点的距离+工作台之间的距离)
+//availtask_list是所有符合条件的task集合，包括source正在生产 or dest原材料格已满且生产线正在被占用
+//需要针对robot所在的位置进一步报价优化，不能等待source太久，source生产时间-到达source时间，dest生产时间-s->d时间-max(source生产，到source)
 void generateBids(int robot_id){
     clearBidList(robot_id);
     //将avail_taskid_list暴露
@@ -192,8 +209,9 @@ void generateBids(int robot_id){
         //报价需要进一步精确化 TODO
         //source工作台的产品格阻塞，增添对应任务的权重
         int s = getSourceOfTask(task_id), d=getDestOfTask(task_id);
+        
         float extra_w_source = 0, extra_w_dest = 0;
-        if(getTimeOfStation(s) == 0 && getTypeOfStation(s)>3 && getRawOfStation(s)==0 ){
+        if(getTimeOfStation(s) == 0 && getTypeOfStation(s)>3){
             extra_w_source = 0.5;
         }
         //dest工作台就差这一个产品就进入生产状态，增加权重 TODO
@@ -224,9 +242,36 @@ void generateBids(int robot_id){
         if(flag){
             extra_w_dest = 1.0;
         }
+        //如果现在缺少d类型产品，通货膨胀，权重适当增加
+        float inflation = 1.0; //通货膨胀系数
+        if(d_type>=4 && d_type<=7){
+            if(product_info_table[d_type] == 0) inflation = 2.0;
+            else inflation += 1.0*product_num/product_info_table[d_type]/10;
+        }
+        ////////////////////////考虑等待时间
+        int robot_to_source = getStationsFrameCost(getDestOfTask(robot_info_table[robot_id].task_id),s);
+        int source_to_dest = getStationsFrameCost(s,d,getDestOfTask(robot_info_table[robot_id].task_id));
+        int source_wait = 0;
+        //如果source正在生产 且 目前产品格为空
+        if(getOkOfStation(s)==0 && getTimeOfStation(s)>0){
+            source_wait = max(0,getTimeOfStation(s)-robot_to_source);
+        }
+        //如果dest目前原材料格已满 且 目前产品格为空
+        int dest_wait = 0;
+        int isflag = isStaionFullRow(d);   //为true表示原材料格已满
+        if(getOkOfStation(d)==0 && isflag){
+            dest_wait = max(0,getTimeOfStation(d)-robot_to_source-source_to_dest-source_wait);
+        }
+        int trade_cost_time = robot_to_source+source_wait+source_to_dest+dest_wait;
+        if(trade_cost_time > 9000-current_frame){
+            //cerr<<"!!!"<<current_frame<<" "<<trade_cost_time<<endl;
+            continue;
+        }
+        //////////////////////
         //addBidInfo(robot_id,task_id,extra_w_source+extra_w_dest+waiting_task_list[task_id].value/sqrt(xx*xx+100*yy*yy));  //300
         //addBidInfo(robot_id,task_id,extra_w_source+extra_w_dest+waiting_task_list[task_id].value/100/(sqrt(xx*xx+4*yy*yy)+1.5*waiting_task_list[task_id].distance));
-        addBidInfo(robot_id,task_id,waiting_task_list[task_id].value/100/(sqrt(xx*xx+yy*yy)+1.5*waiting_task_list[task_id].distance));
+        //cerr<<current_frame<<"type="<<d_type<<",num="<<product_info_table[d_type]<<",inflation="<<inflation<<endl;
+        addBidInfo(robot_id,task_id,inflation*waiting_task_list[task_id].value/100/(sqrt(xx*xx+yy*yy)+1.5*waiting_task_list[task_id].distance));
     }
     sortBidList(robot_id);
 }

@@ -185,6 +185,7 @@ void updateRobotDestDirect(int robot_id);
 //(每一帧)更新机器人是否需要在临近目的地时降速，等待生产
 void updateRobotDestWait(int robot_id);
 
+<<<<<<< HEAD
 
 //每帧更新运动记录，包括直线角度与距离、是否需要等待、运动阶段等
 void updateMovementPerFrame();
@@ -192,5 +193,12 @@ void updateMovementPerFrame(int robot_id);
 
 //在某机器人朝新的目的地出发前，对运动系统的重置工作
 void resetMovementBeforeDepart(int robot_id);
+=======
+//前提：robot刚拿到货物，目前所在是拿货工作台
+int getLimitWaitFrameOfDest(int robot_id,int limit);
+
+//前提：station_id是已经分配的某个任务的source/dest，这样才能保证一定时间内是可以 拿到/卖出货
+int getItemFrameOfStaion(int station_id,int item,int limit);
+>>>>>>> 937302f45dbfd0f4b07d1aa52b2795005fc2d47e
 
 #endif

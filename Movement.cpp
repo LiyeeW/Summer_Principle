@@ -321,3 +321,39 @@ void resetMovementBeforeDepart(int robot_id){
     //初始化为均需要等待
     setRobotDestWait(robot_id, true);
 }
+//前提：robot刚拿到货物，目前所在是拿货工作台
+int getLimitWaitFrameOfDest(int robot_id,int limit){
+    int task_id = getTaskofRobot(robot_id);
+    int s = getSourceOfTask(task_id), d=getDestOfTask(task_id);
+    int dest_wait = 0;
+    //假如d需要等待，即d原材料格已满 且 产品格为空
+    if(isStaionFullRow(d) && getOkOfStation(d)==0){
+        dest_wait = max(0,getTimeOfStation(d)-getStationsFrameCost(s,d));
+    }
+    return dest_wait+limit;
+}
+
+//前提：station_id是已经分配的某个任务的source/dest，这样才能保证一定时间内是可以 拿到/卖出货
+int getItemFrameOfStaion(int station_id,int item,int limit){
+    int wait = 0;
+    //从stationid拿货
+    if(item==0){
+        //目前有产品
+        if(getOkOfStation(station_id)==1){
+            wait = 0;
+        //正在处于生产中
+        }else if(getTimeOfStation(station_id)!=-1){
+            wait = getTimeOfStation(station_id);
+        }
+    //到stationid卖货
+    }else{
+        //对应原材料格空缺
+        if(((1<<item) & getRawOfStation(station_id)) == 0){ 
+            wait = 0;
+        //原材料格全部已满 且 产品格为空
+        }else if(isStaionFullRow(station_id) && getOkOfStation(station_id)==0){
+            wait = getTimeOfStation(station_id);
+        }
+    }
+    return wait+limit;
+}
