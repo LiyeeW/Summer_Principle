@@ -7,6 +7,11 @@
 
 using namespace std;
 
+//相向夹角在多少以内算平
+const float FLAT_ANGLE = PI/6;
+
+//对窗口距离的裕度放宽倍数
+const float WINDOWS_MARGIN = 1.2;
 
 
 //已定义的冲突类型数量，包括无冲突
@@ -126,6 +131,20 @@ void initConfpairGameStart();
 //在每一帧运动执行前，更新全局的冲突信息，包含信息和冲突状态机的更新
 void updateMoveConf();
 
+//是否角度算平
+bool getPairFlat(RobotConf* confp);
 
+//是否方向相向
+bool getPairOppo(RobotConf* confp);
+
+//获取双方到交点的距离之和
+float getPairAcrossDistSum(RobotConf* confp);
+
+//role[0], role[1]是两个不同的机器人的编号
+//robot_id参数一定是其中一个；函数功能是设定robot_id为新的role[0]，剩余的那个机器人编号为新的role[1]
+void setConfRole(RobotConf* confp, int robot_id);
+
+//返回在夹角中线的偏逆时针方向的一方的机器人编号
+int getPairAntiOne(RobotConf* confp);
 
 #endif

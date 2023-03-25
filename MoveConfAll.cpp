@@ -177,6 +177,8 @@ void updateMoveconfPerframe(){
         RobotConf* confp = getConfSolving(i, true);
         (*confJump[confp->type])(confp);
     }
+    //更新全局冲突信息
+    updateMoveConf();
 }
 
 

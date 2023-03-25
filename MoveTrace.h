@@ -6,6 +6,12 @@
 
 using namespace std; 
 
+//相向夹角在多少以内算平
+const float FLAT_ANGLE = PI/6;
+
+//对窗口距离的裕度放宽倍数
+const float WINDOWS_MARGIN = 1.2;
+
 //机器人半径统一估计为0.55m
 const float ROBOT_RADIUS = 0.55;
 
@@ -36,5 +42,16 @@ extern RobotTrace robot_trace_table[ROBOT_NUM];
 
 //在某机器人朝新的目的地出发前，对轨迹记录的重置工作
 void resetTraceBeforeDepart(int robot_id);
+
+//两个机器人的线段是否有交点
+bool isTraceCross(int robot_id1, int robot_id2)
+//计算两个机器人的交点坐标和夹角
+void updateMeetingInfo(int robot_id1, int robot_id2, int &x,int &y,int &orident)
+//更新每帧的机器人轨迹信息表
+void updateMovetracePerframe();
+//更新robot_id的轨迹信息表
+void updateMovetracePerframe(int robot_id);
+//返回在夹角中线的偏逆时针方向的一方的机器人编号
+int getPairAntiOne(RobotConf* confp);
 
 #endif
