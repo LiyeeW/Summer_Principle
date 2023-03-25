@@ -44,6 +44,7 @@ void updateMovetracePerframe(int robot_id){
 
 //向量(x,y)
 class my_vector{
+public:
     int x,y;
     int flag;   //flag=0，表示向量起始点是(xs,ys)，flag=1表示起始点是(xd,yd)
     //返回(x1,y1)指向(x2,y2)的向量
@@ -74,7 +75,7 @@ public:
         }
     }
     int getflag(){return flag;}
-}
+};
 
 //计算向量间的叉积
 int multiply(my_vector v1, my_vector v2){
@@ -130,7 +131,7 @@ bool isTraceCross(int robot_id1, int robot_id2){
 }
 
 //计算两个机器人的交点坐标和夹角
-void updateMeetingInfo(int robot_id1, int robot_id2, int &x,int &y,int &orident){
+void updateMeetingInfo(int robot_id1, int robot_id2, float &x,float &y,float &orident){
     if(robot_trace_table[robot_id1].k == robot_trace_table[robot_id2].k){
         //共线重合的情况
         orident = 0;
