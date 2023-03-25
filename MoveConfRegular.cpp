@@ -117,7 +117,7 @@ void execute(RobotConf* confp){
     if(robot_id==2){
         cerr<<confp->stage<<" ";
     }
-    switch(confp->stage){
+    switch(confp->stage){   //TODO:如果stage3不用均速，可能会新增临近时急刹车，避免长期堵在工作台
         case 1:{
             float speed = launchPidStageExecute(robot_id, 1, getRobotDestDistance(robot_id));  
             setRobotNextSpeed(robot_id, speed);

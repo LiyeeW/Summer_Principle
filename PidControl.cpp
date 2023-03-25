@@ -51,7 +51,7 @@ void initPidGameStart(){
     for(int i=0;i<ROBOT_NUM;i++){
         initPidControlTable(&(robot_pid_table[i][0]), 3.5, 1.5, 0.35, ORIENT_LIMIT, -ORIENT_LIMIT); 
         initPidControlTable(&(robot_pid_table[i][1]), 4.5, 0.5, 1, SPEED_UP_LIMIT, SPEED_LOW_LIMIT); //TODO调参数
-        initPidControlTable(&(robot_pid_table[i][2]), 0.5, 0.001, 0.05, SPEED_UP_LIMIT, SPEED_LOW_LIMIT);
+        initPidControlTable(&(robot_pid_table[i][2]), 1, 0.1, 0.2, SPEED_UP_LIMIT, SPEED_LOW_LIMIT);
     }
 } 
 

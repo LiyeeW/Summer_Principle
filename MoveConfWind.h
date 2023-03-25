@@ -1,22 +1,16 @@
-#ifndef move_conf_flat_oppo_h
-#define move_conf_flat_oppo_h
-#include "Movement.h"
+#ifndef move_conf_wind_h
+#define move_conf_wind_h
 #include "MoveConf.h"
 
-namespace MoveConfFlatOppo { 
 
+namespace MoveConfWind{
 
-//本地冲突类型
-const int LOCAL_TYPE = 1;
+const int LOCAL_TYPE = 3;
 
-//本地stage容量（一般0空出来）
-const int LOCAL_STAGE_NUM = 3;
-
-
+const int LOCAL_STAGE_NUM = 2;
 
 //初始化
 void init(RobotConf* confp);
-
 
 //识别函数
 void recognize(RobotConf* confp);
@@ -33,7 +27,6 @@ void jump(RobotConf* confp);
 //该冲突的状态机执行函数
 void execute(RobotConf* confp);
 
-
-}; 
+}
 
 #endif

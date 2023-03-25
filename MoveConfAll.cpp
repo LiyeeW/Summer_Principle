@@ -70,8 +70,9 @@ void eraseFromNewConfSet(RobotConf* confp_ing){
     for(int i=0;i<ROBOT_NUM;i++){
         if(newConfSet[i]!=confp_ing) continue;
         if(getConfSolving(i) == nullptr){
-            RobotConf* confp = getConfPair(i, confp->role[0]);
+            RobotConf* confp = getConfPair(i, confp_ing->role[0]);
             setConfType(confp, MoveConfWait::LOCAL_TYPE); 
+            setConfRole(confp, i);  //明确谁等谁
             switchConfType(confp);
         }
         newConfSet[i]=nullptr;

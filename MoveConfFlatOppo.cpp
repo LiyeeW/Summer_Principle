@@ -1,6 +1,7 @@
 #include "MoveConfFlatOppo.h"
 #include "MoveTrace.h"
 #include "MoveConf.h"
+#include <cmath>
 
 namespace MoveConfFlatOppo{
 
@@ -14,22 +15,26 @@ void init(RobotConf* confp){
 //识别函数
 //TODO:role需要在识别时暂时分配，便于冲突集查找对应的机器人
 void recognize(RobotConf* confp){
-    //如果有交点
-    //如果角度算平
-    //如果角度相向
-    //两人之和：临界(有乘上裕度因子)到交点的长度/当前位置到交点的长度
+    //识别标准：有交点，角度平，相向
+    if(!confp->across || !getPairFlat(confp) || !getPairOppo(confp)) return;
+    setConfType(confp, LOCAL_TYPE);
+    //评估：(夹角余弦值+1)/双方到交点之和
+    setConfAssess(confp,((float)cos(confp->orient)+1)/getPairAcrossDistSum(confp)); 
 }
 
 //检查退出
 void checkout(RobotConf* confp){
-
+    //退出标准：无交点，或者角度不平
+    if(!confp->across || !getPairFlat(confp)){
+        setConfStage(confp, -1);
+    }
 }
 
 //重置函数，在确定开始解决该冲突时的重置工作
 void reset(RobotConf* confp){
-    //确定同时往哪个方向转
-    //计算旋转时的外轮廓圆弧能否拉满，确定旋转时的线速度
-    //本类冲突对称处理，不需要区分角色
+    setConfStage(confp, 1);
+    //TODO:计算确定同时往哪个方向转，暂时都直接逆时针
+    //TODO:计算旋转时的外轮廓圆弧能否拉满，确定旋转时的线速度
 }
 
 //该冲突的状态机切换函数
@@ -39,7 +44,14 @@ void jump(RobotConf* confp){
 
 //该冲突的状态机执行函数
 void execute(RobotConf* confp){
-    //stage 1:匀速圆周运动
+    switch(confp->stage){
+        case 1:{    //stage 1:匀速圆周运动
+            for(int r=0;r<ROLE_NUM;r++){
+                setRobotNextOmega(confp->role[r], ROTATE_OMEGA);
+                setRobotNextSpeed(confp->role[r], SPEED_UP_LIMIT); 
+            }
+        }
+    }
 }
 
 

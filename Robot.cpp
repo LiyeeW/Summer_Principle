@@ -58,3 +58,9 @@ float getRobotAxisX(int robot_id){
 float getRobotAxisY(int robot_id){
 	return robot_info_table[robot_id].y;
 }
+
+//获取机器人实际线速度
+float getRobotSpeed(int robot_id){
+	float vy = robot_info_table[robot_id].ySpeed, vx = robot_info_table[robot_id].xSpeed;
+	return sqrt(vy*vy+vx*vx);
+}

@@ -61,4 +61,7 @@ float getRobotAxisX(int robot_id);
 //获取机器人y坐标
 float getRobotAxisY(int robot_id);
 
+//获取机器人实际线速度
+float getRobotSpeed(int robot_id);
+
 #endif
