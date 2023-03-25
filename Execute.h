@@ -13,6 +13,10 @@ typedef struct {
     float param;    //参数2
 } ExecuteInfo;
 
+//执行系统中，游戏开始前，全局需要做的初始化工作
+void initExecuteGameStart();
+//执行系统中，拿到每帧传感器数据后，全局需要做的更新工作
+void updateExecutePerFrame();
 //制订本帧的销售执行方案
 void executeTrade();
 //制订本帧的运动执行方案
@@ -20,7 +24,5 @@ void executeMove();
 //输出执行方案
 void outputExecute();
 
-//执行系统的初始化工作
-void initExecuteGlobal();
 
 #endif

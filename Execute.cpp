@@ -1,8 +1,10 @@
 #include "Execute.h"
 #include "Station.h"
 #include "Robot.h"
-#include "MoveStage.h"
 #include "Movement.h"
+#include "MoveTrace.h"
+#include "MoveConf.h"
+#include "MoveConfAll.h" 
 #include "task.h"
 #include "Score.h"
 #include <cstring>
@@ -22,6 +24,45 @@ ExecuteInfo execute_info_table[50];
 int execute_num = 0;
 //标记本帧需要切换目的地
 bool execute_switch[ROBOT_NUM];
+
+
+//执行系统中，游戏开始前，全局需要做的初始化工作
+void initExecuteGameStart(){
+    for(int i=0;i<ROBOT_NUM;i++){
+        execute_switch[i] = true;
+    }
+    initConfGameStart();
+}
+
+//执行系统中，拿到每帧传感器数据后，全局需要做的更新工作
+void updateExecutePerFrame(int robot_id){
+    updateMovementPerFrame(robot_id);
+    //updateMovetracePerframe(robot_id);  //TODO
+    updateMoveconfPerframe(robot_id); 
+}
+
+//执行系统中，拿到每帧传感器数据后，全局需要做的更新工作
+void updateExecutePerFrame(){
+    updateMovementPerFrame();
+    //updateMovetracePerframe();  //TODO
+    updateMoveconfPerframe();
+}
+
+
+//执行系统中，切换目的地后，单个机器人需要做的重置工作；TODO
+void resetExecuteBeforeDepart(int robot_id){
+    //重置切换标记
+    execute_switch[robot_id] = false;
+    //重置冲突的关键信息
+    resetConfBeforeDepart(robot_id);
+    //重置运动的关键信息
+    resetMovementBeforeDepart(robot_id);
+    //重置运动轨迹的关键信息
+    resetTraceBeforeDepart(robot_id);
+    cerr<<current_frame<<": robot "<<robot_id<<" dest to "<<getRobotDest(robot_id)<<endl;
+}
+
+
 
 
 //新增执行
@@ -59,18 +100,15 @@ void destArrivedHandler(int robot_id, int station_id){
     }
 }
 
+
 //在运动执行前检查目标切换
-void checkExecuteSwitch(int robot_id){
-    if(!execute_switch[robot_id]) return;
-    //重置切换标记
-    execute_switch[robot_id] = false;
-    //任务状态：1还是1，2变回0
-    setTaskStatusofRobot(robot_id, getTaskStatusofRobot(robot_id)%2);
-    //重置运动系统 
-    resetMoveBeforeDepart(robot_id);
-    //更新运动系统信息
-    updateMovePerFrame();
-    cerr<<current_frame<<": robot "<<robot_id<<" dest to "<<getRobotDest(robot_id)<<endl;
+void checkExecuteSwitch(){
+    for(int robot_id=0; robot_id<ROBOT_NUM; robot_id++){
+        if(!execute_switch[robot_id]) continue;
+        //切换目标后，需要先重置关键信息，再常规更新信息
+        resetExecuteBeforeDepart(robot_id);
+        updateExecutePerFrame(robot_id);
+    }
 }
 
 //制订本帧的销售执行方案
@@ -92,15 +130,18 @@ void executeTrade(){
     }
 }
 
-//制订本帧的运动执行方案
+//制订本帧的兼容避障的运动执行方案
 void executeMove(){
+    //检查并执行可能的目的地切换
+    checkExecuteSwitch();
+    //执行冲突
+    executeConf();
     for(int i=0;i<ROBOT_NUM;i++){
-        checkExecuteSwitch(i);
-        moveByStage(i);
         addExecute(0,i,getRobotNextSpeed(i));
         addExecute(1,i,getRobotNextOmega(i));
     }
 }
+
 
 //输出执行方案
 void outputExecute(){
@@ -108,12 +149,5 @@ void outputExecute(){
         printf("%s %d", execute_string[execute_info_table[i].type], execute_info_table[i].robot);
         if(execute_info_table[i].type<=1) printf(" %f\n", execute_info_table[i].param);
         else printf("\n");
-    }
-}
-
-//执行系统的初始化工作
-void initExecuteGlobal(){
-    for(int i=0;i<ROBOT_NUM;i++){
-        execute_switch[i] = true;
     }
 }

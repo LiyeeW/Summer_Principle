@@ -1,6 +1,15 @@
 #ifndef robot_h
 #define robot_h
 
+
+
+const float PI = 3.14159f;
+// 角速度上下限的绝对值
+const float ORIENT_LIMIT = PI;
+//线速度的上下限
+const float SPEED_UP_LIMIT = 6;
+const float SPEED_LOW_LIMIT = -2;
+
 //机器人数量
 const int ROBOT_NUM = 4;
 extern int robot_num;

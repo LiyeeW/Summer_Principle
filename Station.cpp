@@ -26,7 +26,7 @@ void updateStationInfo(int id, int time, int raw, int ok){
     station_info_table[id].time = time;
     station_info_table[id].raw = raw;
     station_info_table[id].ok = ok;
-    if(current_frame<2) cerr<<current_frame<<" "<<id<<" "<<time<<" "<<ok<<endl;
+    //if(current_frame<2) cerr<<current_frame<<" "<<id<<" "<<time<<" "<<ok<<endl;
 }
 
 //计算两个工作台的直线距离

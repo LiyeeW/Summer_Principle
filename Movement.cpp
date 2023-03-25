@@ -71,7 +71,7 @@ int timeToFrame(float time){
 
 //功能函数：返回s1到s2的直线全速花费帧数
 int getStationsFrameCostDirect(int s1, int s2){
-    return timeToFrame(getDistance(s1, s2)/DIRECT_UP_LIMIT);
+    return timeToFrame(getDistance(s1, s2)/SPEED_UP_LIMIT);
 } 
 
 //功能函数：返回s1到s2的估计总花费帧数
@@ -88,15 +88,6 @@ int getStationsFrameCost(int s1, int s2, int s0){
 //机器人运动信息表
 RobotMove robot_move_table[ROBOT_NUM];
 
-//修改机器人运动阶段
-void setRobotMoveStage(int robot_id, int stage){
-    robot_move_table[robot_id].stage = stage;
-}
-
-//获取机器人运动阶段
-int getRobotMoveStage(int robot_id){
-    return robot_move_table[robot_id].stage;
-}
 
 //修改机器人的目标工作台
 void setRobotDest(int robot_id, int station_id){
@@ -176,16 +167,16 @@ bool getRobotOrientLocked(int robot_id){
 }
 
 //a，b均为正的浮点数，比较在[-PI,PI]范围内，a是否近似小于b，用于阶段一的近距离差角判断
-bool radianLessThan(float a, float b){
+bool radianLessThan(float a, float b, bool pi){
     if(a<b) return true;
-    if(abs(a-PI)<b) return true;
+    if(abs(a-PI)<b && pi) return true; 
     else return false;
 }
 
 //获取机器人是否精确调向成功，能够直线移动
 bool getRobotOrientLockedAccurate(int robot_id){
     float offset = abs(getRobotDestOrientOffset(robot_id));
-    return radianLessThan(offset, ORIENT_LOST);
+    return radianLessThan(offset, ORIENT_LOST, getRobotDestPass(robot_id));
 }
 
 //修改机器人是否相比出发时已越过目的地
@@ -224,6 +215,16 @@ bool getRobotDestWait(int robot_id){
     return robot_move_table[robot_id].destWait;
 }
 
+//修改机器人是否需要考虑越过
+void setConsiderPass(int robot_id, bool consider){
+    robot_move_table[robot_id].considerPass = consider; 
+}
+
+//获取机器人是否需要考虑越过
+bool getConsiderPass(int robot_id){
+    return robot_move_table[robot_id].considerPass;
+}
+
 //获取机器人是否临近目的地，此时距离不可能为负
 bool getRobotApproached(int robot_id){
     return getRobotDestDistance(robot_id) <= APPROACH_DISTANCE;
@@ -252,9 +253,9 @@ float getRobotNextSpeed(int robot_id){
 //在阶段三时，通过预估匀速到达需要等待的地点
 float getAverageSpeed(int robot_id){
     //如果目的地不用等待，则全速
-    if(!getRobotDestWait(robot_id)) return DIRECT_UP_LIMIT;
+    if(!getRobotDestWait(robot_id)) return SPEED_UP_LIMIT;
     float second = FRAME_SECOND*getWaitFrameOfStation(getRobotDest(robot_id));
-    if(second<0 || second==0) return DIRECT_UP_LIMIT;
+    if(second<0 || second==0) return SPEED_UP_LIMIT;
     return getRobotDestDistance(robot_id)/second; 
 }
 
@@ -266,7 +267,7 @@ void updateRobotDestDirect(int robot_id){
     //计算角度
     float orient = getOrient(ROB(robot_id), dest_station);
     //如果不是第一次记录朝向，并且处于阶段一，才会考虑越过
-    if(getRobotDestOrient(robot_id) < 1.5*PI && getRobotMoveStage(robot_id) == 1){
+    if(getConsiderPass(robot_id)){
         //考虑浮点计算精度，若突变量约为PI，则越过
         if(abs(abs(orient - getRobotDestOrient(robot_id))-PI) < FLOAT_MARGIN){
             flipRobotDestPass(robot_id);
@@ -298,6 +299,28 @@ void updateRobotDestWait(int robot_id){
     }    
 }
 
+//每帧更新运动记录，包括直线角度与距离、是否需要等待、运动阶段等
+void updateMovementPerFrame(int robot_id){
+    //更新等待情况
+    updateRobotDestWait(robot_id);
+    //更新直线方向、锁定、距离、靠近、越过等信息
+    updateRobotDestDirect(robot_id);
+}
+
+//每帧更新运动记录，包括直线角度与距离、是否需要等待、运动阶段等
+void updateMovementPerFrame(){
+    for(int i=0;i<ROBOT_NUM;i++){
+        updateMovementPerFrame(i);
+    }
+}
+
+//在某机器人朝新的目的地出发前，对运动信息的重置工作
+void resetMovementBeforeDepart(int robot_id){
+    //重置目的地
+    resetRobotDest(robot_id);
+    //初始化为均需要等待
+    setRobotDestWait(robot_id, true);
+}
 //前提：robot刚拿到货物，目前所在是拿货工作台
 int getLimitWaitFrameOfDest(int robot_id,int limit){
     int task_id = getTaskofRobot(robot_id);
