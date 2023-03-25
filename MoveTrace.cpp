@@ -54,10 +54,10 @@ public:
     }
     //用于共线判定的,排序坐标，生成的向量(x,y)保证和x夹角小于90°
     my_vector(int robot_id){
-        if(robot_info_table[robot_id].xd > robot_info_table[robot_id].xs){
+        if(robot_trace_table[robot_id].xd > robot_trace_table[robot_id].xs){
             flag = 1;
-        }else if(robot_info_table[robot_id].xd == robot_info_table[robot_id].xs){
-            if(robot_info_table[robot_id].yd > robot_info_table[robot_id].ys){
+        }else if(robot_trace_table[robot_id].xd == robot_trace_table[robot_id].xs){
+            if(robot_trace_table[robot_id].yd > robot_trace_table[robot_id].ys){
                 flag = 1;
             }else{
                 flag = 0;
@@ -66,11 +66,11 @@ public:
             flag = 0;
         }
         if(flag){   //s指向d
-            x = robot_info_table[robot_id].xd - robot_info_table[robot_id].xs;
-            y = robot_info_table[robot_id].yd - robot_info_table[robot_id].ys;
+            x = robot_trace_table[robot_id].xd - robot_trace_table[robot_id].xs;
+            y = robot_trace_table[robot_id].yd - robot_trace_table[robot_id].ys;
         }else{  //d指向s
-            x = robot_info_table[robot_id].xs - robot_info_table[robot_id].xd;
-            y = robot_info_table[robot_id].ys - robot_info_table[robot_id].yd;
+            x = robot_trace_table[robot_id].xs - robot_trace_table[robot_id].xd;
+            y = robot_trace_table[robot_id].ys - robot_trace_table[robot_id].yd;
         }
     }
     int getflag(){return flag;}
