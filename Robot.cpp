@@ -60,8 +60,21 @@ float getRobotAxisY(int robot_id){
 	return robot_info_table[robot_id].y;
 }
 
+
 //获取机器人实际线速度
 float getRobotSpeed(int robot_id){
 	float vy = robot_info_table[robot_id].ySpeed, vx = robot_info_table[robot_id].xSpeed;
-	return sqrt(vy*vy+vx*vx);
+	float v = sqrt(vy*vy+vx*vx);
+	//假设垂直
+    float orient = 0.5*PI;
+    //如果垂直且dy为负
+    if(abs(vx) < 0.001 && vy<0) orient = -orient;
+    else{
+        //算得[-0.5PI,0.5PI]范围的角度
+        orient = (float)atan(vy/vx);
+        //根据非0的dx扩大到[-PI,PI]范围的角度
+        if(vx<0) orient+=(vy<0)?-PI:PI;
+    }
+	if(abs(orient-robot_info_table[robot_id].orient)>0.9*PI) return -v;
+	return v;
 }

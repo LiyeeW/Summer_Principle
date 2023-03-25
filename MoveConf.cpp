@@ -137,5 +137,5 @@ void setConfRole(RobotConf* confp, int robot_id){
 
 //返回在夹角中线的偏逆时针方向的一方的机器人编号
 int getPairAntiOne(RobotConf* confp){
-    
+    return 0;
 }

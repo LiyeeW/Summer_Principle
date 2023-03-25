@@ -43,7 +43,7 @@ void execute(RobotConf* confp){
     switch(confp->stage){
         case 1:{    //急刹车
             setRobotNextOmega(robot_id, 0);
-            setRobotNextSpeed(robot_id, launchPidStageExecute(robot_id, 0, getRobotSpeed(robot_id))); 
+            setRobotNextSpeed(robot_id, launchPidStageExecute(robot_id, 2, -getRobotSpeed(robot_id))); 
             break;
         }
     }

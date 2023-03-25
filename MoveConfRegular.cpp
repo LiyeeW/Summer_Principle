@@ -114,9 +114,6 @@ void jump(RobotConf* confp){
 void execute(RobotConf* confp){
     //获取robot_id
     int robot_id = confp->role[0];
-    if(robot_id==2){
-        cerr<<confp->stage<<" ";
-    }
     switch(confp->stage){   //TODO:如果stage3不用均速，可能会新增临近时急刹车，避免长期堵在工作台
         case 1:{
             float speed = launchPidStageExecute(robot_id, 1, getRobotDestDistance(robot_id));  
