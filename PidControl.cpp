@@ -64,8 +64,8 @@ void resetPidStageStart(int robot_id, int pid_id){
 //执行-冲突-PID，在运动阶段执行时，单个机器人的运转工作
 float launchPidStageExecute(int robot_id, int pid_id, float offset){
     float outcome = launchPidControl(&(robot_pid_table[robot_id][pid_id]), offset);
-    if(robot_id == 2 && pid_id == 1){
-        cerr<<current_frame<<" PID "<<robot_pid_table[robot_id][pid_id].offset<<" "<<robot_pid_table[robot_id][pid_id].sum_offset<<" "<<robot_pid_table[robot_id][pid_id].dif_offset<<" "<<outcome<<endl; 
+    if(robot_id == 0){
+        cerr<<current_frame<<" PID "<<pid_id<<" "<<robot_pid_table[robot_id][pid_id].offset<<" "<<robot_pid_table[robot_id][pid_id].sum_offset<<" "<<robot_pid_table[robot_id][pid_id].dif_offset<<" "<<outcome<<endl; 
     }
     return outcome;
 }

@@ -15,6 +15,8 @@ void init(RobotConf* confp){
 //识别函数
 //TODO:role需要在识别时暂时分配，便于冲突集查找对应的机器人
 void recognize(RobotConf* confp){
+    //必须双方运动中
+    if(getStageStill(confp->role[0]) || getStageStill(confp->role[1])) return;
     //识别标准：有交点，角度平，相向
     if(!confp->across || !getPairFlat(confp) || !getPairOppo(confp)) return;
     setConfType(confp, LOCAL_TYPE);

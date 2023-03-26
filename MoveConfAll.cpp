@@ -32,6 +32,12 @@ RobotConf* newConfSet[ROBOT_NUM];
 //切换冲突类型
 void switchConfType(RobotConf* confp){
     (*confReset[confp->type])(confp);
+    if(confp->type!=MoveConfRegular::LOCAL_TYPE){
+        setConfSolving(confp->role[0], confp);
+        if(confp->type!=MoveConfWait::LOCAL_TYPE){
+            setConfSolving(confp->role[1], confp);
+        }
+    }
 }
 
 
@@ -57,10 +63,15 @@ void updateNewConfSet(RobotConf* confp){
 
 //获取冲突集中第一个非空的记录
 RobotConf* getFromNewConfSet(){
+    RobotConf* rtn = nullptr;
     for(int i=0;i<ROBOT_NUM;i++){
-        if(newConfSet[i] != nullptr) return newConfSet[i];
+        if(newConfSet[i] != nullptr){
+            rtn = newConfSet[i];
+            newConfSet[i] = nullptr;
+            break;
+        }
     }
-    return nullptr;
+    return rtn;
 }
 
 
@@ -104,6 +115,7 @@ void recognizePairAnyConf(int a, int b){
 void assignByNewConfSet(){
     RobotConf* confp = getFromNewConfSet();
     while(confp!=nullptr){
+        cerr<<" switchConfType2 "<<confp->role[0]<<" "<<confp->role[1]<<" "<<confp->type<<endl;
         switchConfType(confp);
         eraseFromNewConfSet(confp);
         confp = getFromNewConfSet();
@@ -191,6 +203,9 @@ void initConfGameStart(){
     for(int i=0;i<CONF_TYPE_NUM;i++){
         (*confInit[i])(nullptr);      //各个冲突类型的初始化
     }
+    for(int i=0;i<ROBOT_NUM;i++){
+        setConfType(&(robot_conf_table[i][i]), MoveConfRegular::LOCAL_TYPE);
+    }
 }
 
 
@@ -205,6 +220,9 @@ void executeConf(){
         RobotConf* confp = getConfSolving(i, true);
         //cerr<<" execute "<<i<<endl;
         (*confExecute[confp->type])(confp);
+        if(i == 0){
+            cerr<<confp->type<<" "<<confp->stage<<" "<<confp->role[0]<<" "<<confp->role[1];
+        }
         //wait是单方执行，不能标记对方为done
         if(confp->type != MoveConfWait::LOCAL_TYPE){
             for(int r=0;r<ROLE_NUM;r++) done[confp->role[r]] = true;

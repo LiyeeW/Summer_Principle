@@ -66,6 +66,9 @@
 19. 针对送货也需要等待，修改wait的初始值均为true
 20. 将movement较上层的部分抽离为moveStage，便于后续增加避障MoveTrace
 
+1. getSpeed需要结合orient，有正负之分
+2. 忘记switchConfType时setConfSolving了
+
 
 ## trace更新修改记录 by wly
 1. 修改原有的呆的角度pid，不仅支持朝向目标工作站，也支持朝向指定角度
