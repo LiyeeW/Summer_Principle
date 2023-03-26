@@ -19,7 +19,29 @@ void recognize(RobotConf* confp){
     wait_move = false;
     //无法从内部识别wait
     //TODO:如果离得近（2-3m），如果一方运动，一方静止，并且静止方在运动方轨迹上
+    
+    //如果两方都静止
+    if(getStageStill(confp->role[0]) && getStageStill(confp->role[1])){
+        return;
+    }
+    //如果两方都在运动
+    if(!getStageStill(confp->role[0]) && !getStageStill(confp->role[1])){
+        return;
+    }
+    int still_robot=-1,active_robot=-1;
+    if(getStageStill(confp->role[0])){
+        still_robot  = confp->role[0];
+        active_robot = confp->role[1];
+    }else{
+        still_robot  = confp->role[1];
+        active_robot = confp->role[0];
+    }
+    if(getDistance(still_robot,active_robot)>2.5 || !getOnRobotTrace(still_robot,active_robot)){
+        return;
+    }
+    setConfType(confp, LOCAL_TYPE);
     //评估为很紧急:两点距离
+    setConfAssess(confp,getDistance(still_robot,active_robot));
     wait_move = true;
 }
 
