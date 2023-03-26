@@ -1,5 +1,8 @@
+#include "Score.h"
 #include "MoveConf.h"
 #include "MoveConfWait.h"
+#include <cmath>
+#include <iostream>
 
 namespace MoveConfWait { 
 
@@ -36,9 +39,10 @@ void recognize(RobotConf* confp){
         still_robot  = confp->role[1];
         active_robot = confp->role[0];
     }
-    if(getDistance(ROB(still_robot),ROB(active_robot))>2.5 || !getOnRobotTrace(still_robot,active_robot)){
+    //判定：离得很近、并且轨迹快交叠，并且不低速，并且帧数大于100
+    if(getDistance(ROB(still_robot),ROB(active_robot))>4 || (!getOnRobotTrace(still_robot,active_robot, 3)) || abs(getRobotSpeed(active_robot))<2.5 || current_frame<100)
         return;
-    }
+    cerr<<" highspeed " <<active_robot<<" "<< abs(getRobotSpeed(active_robot))<<endl;
     setConfType(confp, LOCAL_TYPE);
     //评估为很紧急:两点距离
     setConfAssess(confp,getDistance(ROB(still_robot),ROB(active_robot)));

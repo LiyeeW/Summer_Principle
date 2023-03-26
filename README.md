@@ -69,6 +69,7 @@
 1. getSpeed需要结合orient，有正负之分
 2. 忘记switchConfType时setConfSolving了
 3. 当到达目的地，partner也要回到regular
+4. 平角同向：当双方之距离远大于某点到目的地的距离，则不处理
 
 
 ## trace更新修改记录 by wly

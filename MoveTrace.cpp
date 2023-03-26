@@ -156,12 +156,23 @@ void updateMovetracePerframe(){
     }
 }
 
- //判断机器人a是否在机器人b的trace附近（b的线与a的二倍半径圆相交）,a是still
-bool getOnRobotTrace(int a, int b){
+ //判断机器人a是否在机器人b的trace附近（b的线与a的index倍半径圆相交）,a是still
+bool getOnRobotTrace(int a, int b, float index){
     //点a到直线b的距离计算
     //直线b的各项参数
     float K = robot_trace_table[b].k, B = robot_trace_table[b].b;
     float xa = robot_trace_table[a].xs, ya = robot_trace_table[a].ys; //机器人a目前所在位置
     float fenzi = fabs(K*xa-ya+B), fenmu = sqrt(K*K+1);
-    return fenzi/fenmu <= 2*ROBOT_RADIUS;
+    return fenzi/fenmu <= index * ROBOT_RADIUS;
+}
+
+ //判断机器人a是否在机器人b的trace附近（b的线与a的二倍半径圆相交）,a是still
+bool getOnRobotTrace(int a, int b){
+    return getOnRobotTrace(a, b, 2);
+    // //点a到直线b的距离计算
+    // //直线b的各项参数
+    // float K = robot_trace_table[b].k, B = robot_trace_table[b].b;
+    // float xa = robot_trace_table[a].xs, ya = robot_trace_table[a].ys; //机器人a目前所在位置
+    // float fenzi = fabs(K*xa-ya+B), fenmu = sqrt(K*K+1);
+    // return fenzi/fenmu <= 2*ROBOT_RADIUS;
 }

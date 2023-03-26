@@ -41,7 +41,7 @@ void switchConfType(RobotConf* confp){
             setConfSolving(confp->role[1], confp);
         }
     }
-    RobotConf* cf = getConfSolving(0, true);
+    cerr<<" switchConfType "<<confp->role[0]<<" "<<confp->role[1]<<" "<<confp->type<<endl;
 }
 
 
@@ -88,6 +88,7 @@ void eraseFromNewConfSet(RobotConf* confp_ing){
             RobotConf* confp = getConfPair(i, confp_ing->role[0]);
             setConfType(confp, MoveConfWait::LOCAL_TYPE); 
             setConfRole(confp, i);  //明确谁等谁
+            cerr<<i<<" because1 "<<confp_ing->role[0]<<endl;
             switchConfType(confp);
         }
         newConfSet[i]=nullptr;
@@ -98,13 +99,16 @@ void eraseFromNewConfSet(RobotConf* confp_ing){
 //识别评估一对机器人之间任何可能存在的冲突，将识别结果写进冲突表
 void recognizePairAnyConf(int a, int b){
     //如果有任何一方正在solving，那么在找到新冲突后，非solving的一方会被立刻分配为confWait
-    bool mayWait = getConfSolving(b)!=nullptr || getConfSolving(a)!=nullptr;
+    int wait_id = (getConfSolving(b)!=nullptr)?a:(getConfSolving(a)!=nullptr)?b:-1;
     RobotConf* confp = getConfPair(a, b);
     for(int i=0;i<CONF_TYPE_NUM;i++){
         (*confRecognize[i])(confp); //识别
         if(confp->type!=MoveConfRegular::LOCAL_TYPE){//新找到一个冲突对；
-            if(mayWait){ //立刻分配为confWait
+            cerr<<"  find "<<confp->type<<" between "<<confp->role[0]<<" and "<<confp->role[1]<<endl;
+            if(wait_id!=-1){ //立刻分配为confWait
                 setConfType(confp, MoveConfWait::LOCAL_TYPE);
+                setConfRole(confp, wait_id);
+                cerr<<wait_id<<" because2 "<<confp->role[1]<<endl;
                 switchConfType(confp);
             }
             else{ //加入冲突集
@@ -119,7 +123,6 @@ void recognizePairAnyConf(int a, int b){
 void assignByNewConfSet(){
     RobotConf* confp = getFromNewConfSet();
     while(confp!=nullptr){
-        cerr<<" switchConfType "<<confp->role[0]<<" "<<confp->role[1]<<" "<<confp->type<<endl;
         switchConfType(confp);
         eraseFromNewConfSet(confp);
         confp = getFromNewConfSet();

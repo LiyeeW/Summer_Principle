@@ -53,4 +53,7 @@ void updateMovetracePerframe(int robot_id);
  //判断机器人a是否在机器人b的trace附近（b的线与a的二倍半径圆相交）,a静止
 bool getOnRobotTrace(int a, int b);
 
+ //判断机器人a是否在机器人b的trace附近（b的线与a的index倍半径圆相交）,a是still
+bool getOnRobotTrace(int a, int b, float index);
+
 #endif

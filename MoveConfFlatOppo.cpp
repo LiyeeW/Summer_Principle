@@ -35,10 +35,10 @@ void recognize(RobotConf* confp){
 
 //检查退出
 void checkout(RobotConf* confp){
-    //退出标准：距离远且（无交点，或者角度不平）2:轨迹不交叠
-    bool cond1 = (confp->distance >= SAFE_DIST) && (!confp->across || !getPairFlat(confp));
-    bool cond2 = !getOnRobotTrace(confp->role[0], confp->role[1]);
-    if(cond1 || cond2){
+    //退出标准：轨迹不交叠，或者距离远且角度不平
+    bool cond0 = !getOnRobotTrace(confp->role[0], confp->role[1]) && !getOnRobotTrace(confp->role[1], confp->role[0]);
+    bool cond1 = cond0 || (confp->distance >= 2 * SAFE_DIST && !getPairFlat(confp));
+    if(cond1){
         setConfStage(confp, -1);
     }
 }

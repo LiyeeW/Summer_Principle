@@ -4,6 +4,7 @@
 namespace MoveConfFlatSame{
 
 
+
 //角色0的方向，为1是顺时针，为-1是逆时针
 int role0_direction = 1;
 
@@ -23,6 +24,8 @@ void recognize(RobotConf* confp){
     if(getStageStill(confp->role[0]) || getStageStill(confp->role[1])) return;
     //识别标准：有交点，角度平，同向
     if(!confp->across || !getPairFlat(confp) || getPairOppo(confp)) return;
+    //如果双方之距离远大于某点到目的地的距离，则不处理
+    if(confp->distance > 2*getRobotDestDistance(confp->role[0]) || confp->distance > 2*getRobotDestDistance(confp->role[1])) return;
     setConfType(confp, LOCAL_TYPE);
     //评估：1/双方距离
     setConfAssess(confp,1/confp->distance); 
