@@ -146,6 +146,19 @@ float getPairWinDist(RobotConf* confp){
 
 //返回在夹角中线的偏逆时针方向的一方的机器人编号
 int getPairAntiOne(RobotConf* confp){
-    return 0;
+    int id1 = confp->role[0],id2 = confp->role[1];
+    int o1 = getRobotDestOrient(id1), o2 = getRobotDestOrient(id2);
+    if(o1*o2>=0){
+        if(o2>o1)   return id2;
+        else return id1;
+    }else if(o1>0 && o2<0){
+        //分为02是否超过o1的延长线
+        if(o1-o2 > PI)  return id2;
+        else return id1; 
+    }else{
+        if(o2-o1 > PI) return id1;
+        else return id2;
+    }
+    
 }
 
