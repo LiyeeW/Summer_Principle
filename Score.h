@@ -6,4 +6,6 @@ extern int current_frame;
 //当前金钱数
 extern int current_score;
 
+const int DERO = 2;
+
 #endif

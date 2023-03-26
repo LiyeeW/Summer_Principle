@@ -1,3 +1,4 @@
+#include "Score.h"
 #include "PidControl.h"
 #include "MoveTrace.h"
 #include "MoveConf.h"
@@ -226,9 +227,8 @@ void executeConf(){
         if(done[i]) continue;
         RobotConf* confp = getConfSolving(i, true);
         (*confExecute[confp->type])(confp);
-        if(i == 0){
-            //cerr<<confp->type<<" "<<confp->stage<<" "<<confp->role[0]<<" "<<confp->role[1];
-        }
+        if(i == DERO)
+            cerr<<current_frame<<" conf "<<confp->type<<" "<<confp->stage<<" "<<confp->role[0]<<" "<<confp->role[1]<<endl;
         //wait是单方执行，不能标记对方为done
         if(confp->type != MoveConfWait::LOCAL_TYPE){
             for(int r=0;r<ROLE_NUM;r++) done[confp->role[r]] = true;
