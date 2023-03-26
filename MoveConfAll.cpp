@@ -229,8 +229,10 @@ void initConfGameStart(){
 
 //执行-冲突
 void executeConf(){
-    while(checkoutFinishedConf()); //去掉刚解决的冲突
-    recognizeNewConf();  //加上新发现的冲突
+    if(current_frame > 300){
+        while(checkoutFinishedConf()); //去掉刚解决的冲突
+        recognizeNewConf();  //加上新发现的冲突
+    }
     bool done[ROBOT_NUM] = {false}; //标记已经执行过的，则会跳过
     for(int i=0;i<ROBOT_NUM;i++){
         if(done[i]) continue;
