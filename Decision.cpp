@@ -41,9 +41,7 @@ void makeDecision(){
             generateBids(i);
         }
     }
-    //cerr<<"assign now"<<endl;
     assignTaskfromBids();
-    //cerr<<current_frame<<"assigned task"<<endl;
     //end
     
 }

@@ -40,6 +40,7 @@ void switchConfType(RobotConf* confp){
             setConfSolving(confp->role[1], confp);
         }
     }
+    RobotConf* cf = getConfSolving(0, true);
 }
 
 
@@ -117,7 +118,7 @@ void recognizePairAnyConf(int a, int b){
 void assignByNewConfSet(){
     RobotConf* confp = getFromNewConfSet();
     while(confp!=nullptr){
-        cerr<<" switchConfType2 "<<confp->role[0]<<" "<<confp->role[1]<<" "<<confp->type<<endl;
+        cerr<<" switchConfType "<<confp->role[0]<<" "<<confp->role[1]<<" "<<confp->type<<endl;
         switchConfType(confp);
         eraseFromNewConfSet(confp);
         confp = getFromNewConfSet();
@@ -224,7 +225,6 @@ void executeConf(){
     for(int i=0;i<ROBOT_NUM;i++){
         if(done[i]) continue;
         RobotConf* confp = getConfSolving(i, true);
-        //cerr<<" execute "<<i<<endl;
         (*confExecute[confp->type])(confp);
         if(i == 0){
             cerr<<confp->type<<" "<<confp->stage<<" "<<confp->role[0]<<" "<<confp->role[1];

@@ -1,6 +1,7 @@
 #include "MoveConfWind.h"
 #include "MoveConf.h"
 #include <cmath>
+#include <iostream>
 
 
 namespace MoveConfWind{
@@ -35,6 +36,7 @@ void reset(RobotConf* confp){
     }
     else setConfRole(confp, confp->role[1]);
     setConfStage(confp, 1);
+    //cerr<<" reset: "<<confp->type<<" "<<confp->stage<<" "<<confp->role[0]<<" "<<confp->role[1]<<endl;
     resetPidStageStart(confp->role[0], 2);    //重置线速度PID
 }
 

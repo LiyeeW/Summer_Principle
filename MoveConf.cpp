@@ -30,6 +30,7 @@ RobotConf* getConfSolving(int robot_id){
 //获取机器人正在解决的冲突，返回值不能为nullptr
 RobotConf* getConfSolving(int robot_id, bool must){
     if(getConfSolving(robot_id) == nullptr) return &(robot_conf_table[robot_id][robot_id]);
+    return robot_solve_table[robot_id];
 }
 
 //设置机器人正在解决的冲突
