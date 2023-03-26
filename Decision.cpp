@@ -84,8 +84,11 @@ bool isTaskConflict(int taskid){
         if(robot_info_table[i].task_id != -1 && robot_info_table[i].task_status != -1){
             int another_s = getSourceOfTask(robot_info_table[i].task_id);
             //cerr<<"robot "<<i<<" "<<another_s<<" "<<robot_info_table[i].task_status<<getTimeOfStation(s)<<endl;
-            //不能有另一个robot前往同一个s，且s并未处于阻塞状态
-            if(robot_info_table[i].task_status == 0 && s == another_s && getTimeOfStation(s)!=0) return true;   //source冲突
+            //不能有另一个robot前往同一个s，且s并未处于生产状态
+            if(robot_info_table[i].task_status == 0 && s == another_s){ 
+                if( getOkOfStation(s)==0 ) return true;
+                else if(getTimeOfStation(s)==-1 || getTimeOfStation(s)>250)  return true;
+            }
 
             //不能有另一个robot前往同一个d送相同的货，且d并非处于即将能生产的状态
             int d_type = station_info_table[d].type, s_type = station_info_table[s].type;
@@ -124,6 +127,7 @@ void assignTaskfromBids(){
     //前提保证：不空闲的robot对应的bids_list为空
     float max_price;
     int max_robot_id;
+    int assigned_robot_num = 0;  //bit位表示对应机器人是否已经被分配了任务
     while(1){
         max_price = 0;
         max_robot_id = -1;
@@ -134,6 +138,8 @@ void assignTaskfromBids(){
                 //不能分配相同的任务给两个robot，此外，不能两个robot前往同一个source取货，或前往同一个dest卖货
                 //while(isTaskBusy(bids_list[i][0].task_id) || isTaskConflict(bids_list[i][0].task_id)){
                 while(!bids_list[i].empty() && isTaskBusy(bids_list[i][0].task_id) || isTaskConflict(bids_list[i][0].task_id) || isTaskStationRepeat(bids_list[i][0].task_id)){
+                    //但是如果i是最后一个没有被分配任务的工作台
+                    if(current_frame < 2 && assigned_robot_num == 3 && getSourceOfTask(bids_list[i][0].task_id) < 4) break;
                     bids_list[i].erase(bids_list[i].begin());
                     if(bids_list[i].empty()){
                         cerr<<current_frame<<": no task assign for robot "<<i<<endl;
@@ -151,6 +157,7 @@ void assignTaskfromBids(){
             }
         }
         if(max_robot_id != -1){
+            assigned_robot_num++;
             //分配任务给竞标成功的robot，并清空其bids_list
             addTasktoRobot(max_robot_id,bids_list[max_robot_id][0].task_id,0);
             //debug
@@ -247,7 +254,7 @@ void generateBids(int robot_id){
         //如果现在缺少d类型产品，通货膨胀，权重适当增加
         float inflation = 1.0; //通货膨胀系数
         if(d_type>=4 && d_type<=6){
-            if(product_info_table[d_type] == 0) inflation = 1.5;
+            if(product_info_table[d_type] == 0) inflation = 2.0;
             else inflation += 1.0*product_num/product_info_table[d_type]/5;
         }
         ////////////////////////考虑等待时间
@@ -271,14 +278,14 @@ void generateBids(int robot_id){
         int trade_cost_time = robot_to_source+source_wait+source_to_dest+dest_wait;
         if(trade_cost_time > 9000-current_frame){
             //cerr<<"!!!"<<current_frame<<" "<<trade_cost_time<<endl;
-            continue;
+            //continue;
         }
         //////////////////////
         //addBidInfo(robot_id,task_id,extra_w_source+extra_w_dest+waiting_task_list[task_id].value/sqrt(xx*xx+100*yy*yy));  //300
         //addBidInfo(robot_id,task_id,extra_w_source+extra_w_dest+waiting_task_list[task_id].value/100/(sqrt(xx*xx+4*yy*yy)+1.5*waiting_task_list[task_id].distance));
         //cerr<<current_frame<<"type="<<d_type<<",num="<<product_info_table[d_type]<<",inflation="<<inflation<<endl;
         //addBidInfo(robot_id,task_id,inflation+extra_w_dest*waiting_task_list[task_id].value/100/(sqrt(xx*xx+yy*yy)+1.5*waiting_task_list[task_id].distance));
-        addBidInfo(robot_id,task_id,inflation*waiting_task_list[task_id].value/100/(sqrt(xx*xx+yy*yy)+1.5*waiting_task_list[task_id].distance));
+        addBidInfo(robot_id,task_id,inflation+extra_w_dest*waiting_task_list[task_id].value/10/(sqrt(xx*xx+yy*yy)+1.5*waiting_task_list[task_id].distance));
     }
     sortBidList(robot_id);
 }
