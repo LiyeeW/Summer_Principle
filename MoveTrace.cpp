@@ -155,3 +155,8 @@ void updateMovetracePerframe(){
         updateMovetracePerframe(i);
     }
 }
+
+//判断某（静止的）机器人是否在某（移动的）机器人的trace附近（线与圆相交）
+bool getOnRobotTrace(int still_robot, int move_robot){
+
+}
