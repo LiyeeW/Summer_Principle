@@ -65,7 +65,7 @@ void resetPidStageStart(int robot_id, int pid_id){
 float launchPidStageExecute(int robot_id, int pid_id, float offset){
     float outcome = launchPidControl(&(robot_pid_table[robot_id][pid_id]), offset);
     //if(current_frame > 8900)
-    if(robot_id==DERO) 
-        cerr<<current_frame<<" "<<robot_id<<" PID "<<pid_id<<" "<<robot_pid_table[robot_id][pid_id].offset<<" "<<robot_pid_table[robot_id][pid_id].sum_offset<<" "<<robot_pid_table[robot_id][pid_id].dif_offset<<" "<<outcome<<endl; 
+    //if(robot_id==DERO) 
+    //    cerr<<current_frame<<" "<<robot_id<<" PID "<<pid_id<<" "<<robot_pid_table[robot_id][pid_id].offset<<" "<<robot_pid_table[robot_id][pid_id].sum_offset<<" "<<robot_pid_table[robot_id][pid_id].dif_offset<<" "<<outcome<<endl; 
     return outcome;
 }

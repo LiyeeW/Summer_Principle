@@ -91,7 +91,7 @@ bool is_part_cross(int robot_id1,int robot_id2){
                     robot_trace_table[robot_id2].xd,robot_trace_table[robot_id2].yd);
     my_vector vm = my_vector(robot_trace_table[robot_id1].xs,robot_trace_table[robot_id1].ys,
                     robot_trace_table[robot_id1].xd,robot_trace_table[robot_id1].yd);
-    if(multiply(v1,vm) * multiply(v2,vm) <= 0){
+    if(multiply(v1,vm) * multiply(v2,vm) < 0){
         return true;
     }else{
         return false;

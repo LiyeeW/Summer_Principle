@@ -11,6 +11,8 @@ StationInfo station_info_table[STATION_MAX_NUM];
 //4~7产品数量
 int product_num;
 
+int staion4_num=0;
+
 //统计各种产品当前的数量 1~7
 int product_info_table[10];
 
@@ -19,6 +21,7 @@ void addStationInfo(int type, float x, float y){
     station_info_table[station_num].type = type;
     station_info_table[station_num].x = x;
     station_info_table[station_num++].y = y;
+    if(type == 4)   staion4_num++;
 }
 
 //更新一个工作台信息
