@@ -15,7 +15,7 @@ const float WINDOWS_MARGIN = 1.2;
 
 
 //已定义的冲突类型数量，包括无冲突
-const int CONF_TYPE_NUM = 3;
+const int CONF_TYPE_NUM = 6;
 
 //最大阶段数
 const int MAX_STAGE_NUM = 5;

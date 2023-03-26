@@ -5,6 +5,8 @@
 #include "MoveConfRegular.h"
 #include "MoveConfFlatOppo.h" 
 #include "MoveConfWait.h"  
+#include "MoveConfWind.h" 
+#include "MoveConfFlatSame.h"
 #include "Robot.h"
 #include <iostream>
 
@@ -13,17 +15,17 @@ using namespace std;
 
 
 //初始化
-ConFun confInit[CONF_TYPE_NUM] = {MoveConfRegular::init, MoveConfFlatOppo::init, MoveConfWait::init};
+ConFun confInit[CONF_TYPE_NUM] = {MoveConfRegular::init, MoveConfFlatOppo::init, MoveConfWait::init, MoveConfWind::init, MoveConfFlatSame::init}; 
 //识别 
-ConFun confRecognize[CONF_TYPE_NUM] = {MoveConfRegular::recognize, MoveConfFlatOppo::recognize, MoveConfWait::recognize};
+ConFun confRecognize[CONF_TYPE_NUM] = {MoveConfRegular::recognize, MoveConfFlatOppo::recognize, MoveConfWait::recognize, MoveConfWind::recognize, MoveConfFlatSame::recognize};
 //检查退出
-ConFun confCheckout[CONF_TYPE_NUM] = {MoveConfRegular::checkout, MoveConfFlatOppo::checkout, MoveConfWait::checkout};
+ConFun confCheckout[CONF_TYPE_NUM] = {MoveConfRegular::checkout, MoveConfFlatOppo::checkout, MoveConfWait::checkout, MoveConfWind::checkout, MoveConfFlatSame::checkout};
 //分配时的重置
-ConFun confReset[CONF_TYPE_NUM] = {MoveConfRegular::reset, MoveConfFlatOppo::reset, MoveConfWait::reset}; 
+ConFun confReset[CONF_TYPE_NUM] = {MoveConfRegular::reset, MoveConfFlatOppo::reset, MoveConfWait::reset, MoveConfWind::reset, MoveConfFlatSame::reset}; 
 //跳转
-ConFun confJump[CONF_TYPE_NUM] = {MoveConfRegular::jump, MoveConfFlatOppo::jump, MoveConfWait::jump};
+ConFun confJump[CONF_TYPE_NUM] = {MoveConfRegular::jump, MoveConfFlatOppo::jump, MoveConfWait::jump, MoveConfWind::jump, MoveConfFlatSame::jump};
 //执行
-ConFun confExecute[CONF_TYPE_NUM] = {MoveConfRegular::execute, MoveConfFlatOppo::execute, MoveConfWait::execute};
+ConFun confExecute[CONF_TYPE_NUM] = {MoveConfRegular::execute, MoveConfFlatOppo::execute, MoveConfWait::execute, MoveConfWind::execute, MoveConfFlatSame::execute};
 
 
 //冲突集，与并查集相似，记录当前集合的评分最高的冲突对
@@ -145,6 +147,8 @@ void recognizeNewConf(){
 void finishConf(RobotConf* confp){
     for(int i=0;i<ROLE_NUM;i++){
         setConfSolving(confp->role[i], nullptr);
+        RobotConf* confp_role = getConfSolving(confp->role[i], true);
+        switchConfType(confp_role);
     }
     setConfType(confp, MoveConfRegular::LOCAL_TYPE);
     switchConfType(confp);

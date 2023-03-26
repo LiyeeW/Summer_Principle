@@ -68,6 +68,7 @@
 
 1. getSpeed需要结合orient，有正负之分
 2. 忘记switchConfType时setConfSolving了
+3. 当到达目的地，partner也要回到regular
 
 
 ## trace更新修改记录 by wly
