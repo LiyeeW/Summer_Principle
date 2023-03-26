@@ -146,6 +146,8 @@ void recognizeNewConf(){
 //冲突解决完成，冲突类型回到regular；在regular中，切换目的地也是一种完成
 void finishConf(RobotConf* confp){
     for(int i=0;i<ROLE_NUM;i++){
+        //WAIT不干扰对方
+        if(confp->type == MoveConfWait::LOCAL_TYPE && i==1) continue;
         setConfSolving(confp->role[i], nullptr);
         RobotConf* confp_role = getConfSolving(confp->role[i], true);
         switchConfType(confp_role);
