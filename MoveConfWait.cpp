@@ -36,12 +36,12 @@ void recognize(RobotConf* confp){
         still_robot  = confp->role[1];
         active_robot = confp->role[0];
     }
-    if(getDistance(still_robot,active_robot)>2.5 || !getOnRobotTrace(still_robot,active_robot)){
+    if(getDistance(ROB(still_robot),ROB(active_robot))>2.5 || !getOnRobotTrace(still_robot,active_robot)){
         return;
     }
     setConfType(confp, LOCAL_TYPE);
     //评估为很紧急:两点距离
-    setConfAssess(confp,getDistance(still_robot,active_robot));
+    setConfAssess(confp,getDistance(ROB(still_robot),ROB(active_robot)));
     wait_move = true;
 }
 

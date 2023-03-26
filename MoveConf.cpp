@@ -98,7 +98,7 @@ void updateMoveConf(){
     //先更新冲突信息表
     for(int i=0;i<ROBOT_NUM;i++){
         for(int j=i+1;j<ROBOT_NUM;j++){
-            robot_conf_table[i][j].distance = getDistance(i,j);
+            robot_conf_table[i][j].distance = getDistance(ROB(i),ROB(j));
             robot_conf_table[i][j].across = isTraceCross(i,j);
             if(robot_conf_table[i][j].across){
                 updateMeetingInfo(i,j,robot_conf_table[i][j].x,robot_conf_table[i][j].y,robot_conf_table[i][j].orient);

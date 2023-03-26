@@ -83,6 +83,10 @@ void destArrivedHandler(int robot_id, int station_id){
         int taskid = getTaskofRobot(robot_id);
         int stationid = getSourceOfTask(taskid);
         int type = station_info_table[getSourceOfTask(taskid)].type;
+        if(robot_id==1){
+            int t = robot_info_table[robot_id].task_id;
+            cerr<<"robot1: task_id = "<<t<<",s = "<<getSourceOfTask(t)<<",d="<<getDestOfTask(t)<<endl;
+        }
         cerr<<current_frame<<" :robot "<<robot_id<<" buy from "<<stationid<<",type="<<type<<endl;
     }
     //如果正在送货
@@ -137,6 +141,11 @@ void executeMove(){
     //执行冲突
     executeConf();
     for(int i=0;i<ROBOT_NUM;i++){
+        if(robot_info_table[i].task_id==-1 || robot_info_table[i].task_status==-1 ){
+            addExecute(0,i,0);
+            addExecute(1,i,0);
+            continue;
+        }
         addExecute(0,i,getRobotNextSpeed(i));
         addExecute(1,i,getRobotNextOmega(i));
     }

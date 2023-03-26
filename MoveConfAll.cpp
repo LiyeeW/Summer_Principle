@@ -227,7 +227,7 @@ void executeConf(){
         RobotConf* confp = getConfSolving(i, true);
         (*confExecute[confp->type])(confp);
         if(i == 0){
-            cerr<<confp->type<<" "<<confp->stage<<" "<<confp->role[0]<<" "<<confp->role[1];
+            //cerr<<confp->type<<" "<<confp->stage<<" "<<confp->role[0]<<" "<<confp->role[1];
         }
         //wait是单方执行，不能标记对方为done
         if(confp->type != MoveConfWait::LOCAL_TYPE){
