@@ -160,8 +160,8 @@ void updateMovetracePerframe(){
 bool getOnRobotTrace(int a, int b){
     //点a到直线b的距离计算
     //直线b的各项参数
-    float k = robot_trace_table[b].k, b = robot_trace_table[b].b;
+    float K = robot_trace_table[b].k, B = robot_trace_table[b].b;
     float xa = robot_trace_table[a].xs, ya = robot_trace_table[a].ys; //机器人a目前所在位置
-    float fenzi = fabs(k*xa-ya+b), fenmu = sqrt(k*k+1);
+    float fenzi = fabs(K*xa-ya+B), fenmu = sqrt(K*K+1);
     return fenzi/fenmu <= 2*ROBOT_RADIUS;
 }
