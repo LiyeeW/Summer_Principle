@@ -9,6 +9,9 @@ namespace MoveConfWait {
 //为了区分等对方冲突解决，还是等对方动
 bool wait_move = false;
 
+//去同一个目的地，都在运动，有交点，同向，距离近，等still
+bool wait_still = false;
+
 
 //初始化
 void init(RobotConf* confp){
@@ -20,6 +23,7 @@ void init(RobotConf* confp){
 //识别函数
 void recognize(RobotConf* confp){
     wait_move = false;
+    wait_still = false;
     //无法从内部识别wait
     //TODO:如果离得近（2-3m），如果一方运动，一方静止，并且静止方在运动方轨迹上
     
@@ -29,6 +33,14 @@ void recognize(RobotConf* confp){
     }
     //如果两方都在运动
     if(!getStageStill(confp->role[0]) && !getStageStill(confp->role[1])){
+        if(confp->across && !getPairOppo(confp) && confp->distance<3.5){
+            setConfType(confp, LOCAL_TYPE);
+            //评估为很紧急:两点距离
+            setConfAssess(confp,confp->distance);
+            wait_still = true;
+            if(getPairAcrossDist(confp, confp->role[1]) > getPairAcrossDist(confp, confp->role[0]))
+                setConfRole(confp, confp->role[1]);
+        }
         return;
     }
     int still_robot=-1,active_robot=-1;
@@ -39,9 +51,11 @@ void recognize(RobotConf* confp){
         still_robot  = confp->role[1];
         active_robot = confp->role[0];
     }
-    //判定：离得很近、并且轨迹快交叠，并且不低速，并且帧数大于100
-    if(getDistance(ROB(still_robot),ROB(active_robot))>4 || (!getOnRobotTrace(still_robot,active_robot, 3)) || abs(getRobotSpeed(active_robot))<2.5 || current_frame<100)
+    //判定：离得很近、并且不低速，并且帧数大于100
+    if(getDistance(ROB(still_robot),ROB(active_robot))>4 ||  abs(getRobotSpeed(active_robot))<1 || current_frame<100)
         return;
+    if(!getOnRobotTrace(still_robot,active_robot, 3) && !getOnRobotTrace(active_robot, still_robot, 3)) return;
+    setConfRole(confp, active_robot);
     cerr<<" highspeed " <<active_robot<<" "<< abs(getRobotSpeed(active_robot))<<endl;
     setConfType(confp, LOCAL_TYPE);
     //评估为很紧急:两点距离
@@ -58,6 +72,9 @@ void checkout(RobotConf* confp){
     else if(confp->stage == 2 && !getStageStill(partner)){
         setConfStage(confp, -1);
     }
+    else if(confp->stage == 3 && getStageStill(partner)){
+        setConfStage(confp, -1);
+    }
 }
 
 //重置函数，在确定开始解决该冲突时的重置工作
@@ -65,7 +82,8 @@ void checkout(RobotConf* confp){
 //上述有误，必须清楚等的谁
 void reset(RobotConf* confp){
     //用stage 稳定区分
-    if(wait_move) setConfStage(confp, 2);
+    if(wait_move ) setConfStage(confp, 2);
+    if(wait_still) setConfStage(confp, 3);
     else setConfStage(confp, 1);
     resetPidStageStart(confp->role[0], 2);    //重置线速度PID
 }
@@ -81,6 +99,7 @@ void execute(RobotConf* confp){
     switch(confp->stage){
         case 1:
         case 2:
+        case 3:
         {    //急刹车
             setRobotNextOmega(robot_id, 0);
             setRobotNextSpeed(robot_id, launchPidStageExecute(robot_id, 2, -getRobotSpeed(robot_id))); 

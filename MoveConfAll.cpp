@@ -38,6 +38,7 @@ void switchConfType(RobotConf* confp){
     if(confp->type!=MoveConfRegular::LOCAL_TYPE){
         setConfSolving(confp->role[0], confp);
         if(confp->type!=MoveConfWait::LOCAL_TYPE){
+            cerr<<" switchrole1: "<<confp->type<<" "<<confp->role[0]<<" "<<confp->role[1]<<endl;
             setConfSolving(confp->role[1], confp);
         }
     }
@@ -106,6 +107,9 @@ void recognizePairAnyConf(int a, int b){
     //如果有任何一方正在solving，那么在找到新冲突后，非solving的一方会被立刻分配为confWait
     int wait_id = (getConfSolving(b)!=nullptr)?a:(getConfSolving(a)!=nullptr)?b:-1;
     RobotConf* confp = getConfPair(a, b);
+    if(confp->distance > 8) return;
+    cerr<<"  before reco "<<confp->type<<" between "<<confp->role[0]<<" and "<<confp->role[1]<<" "<<(getConfSolving(confp->role[0])!=nullptr)<<" "<<(getConfSolving(confp->role[1])!=nullptr)<<endl;
+    if(confp->type == 2 && getConfSolving(confp->role[1])==nullptr) return;
     for(int i=0;i<CONF_TYPE_NUM;i++){
         (*confRecognize[i])(confp); //识别
         if(confp->type!=MoveConfRegular::LOCAL_TYPE){//新找到一个冲突对；
@@ -133,6 +137,10 @@ void assignByNewConfSet(){
         eraseFromNewConfSet(confp);
         confp = getFromNewConfSet();
     }
+}
+
+void recognizeAll(int a, int b){
+    
 }
 
 

@@ -12,7 +12,7 @@ namespace MoveConfWait {
 const int LOCAL_TYPE = 2;
 
 //本地stage容量（一般0空出来）
-const int LOCAL_STAGE_NUM = 3;
+const int LOCAL_STAGE_NUM = 4;
 
 
 
