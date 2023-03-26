@@ -12,29 +12,30 @@ void init(RobotConf* confp){
 }
 
 //识别函数
-void recognize(RobotConf* confp){
-    // if(!confp->across || getPairFlat(confp)) return;
-    // if(getPairAcrossDistSum(confp) > getPairWinDist(confp)) return;
-    // setConfType(confp, LOCAL_TYPE);
-    // //评估：(夹角余弦值+1)/双方到交点之和
-    // setConfAssess(confp,((float)cos(confp->orient)+1)/getPairAcrossDistSum(confp)); 
+void recognize(RobotConf* confp){//必须双方运动中
+    if(getStageStill(confp->role[0]) || getStageStill(confp->role[1])) return;
+    if(!confp->across || getPairFlat(confp)) return;
+    if(getPairAcrossDistSum(confp) > getPairWinDist(confp)) return;
+    setConfType(confp, LOCAL_TYPE);
+    //评估：(夹角余弦值+1)/双方到交点之和
+    setConfAssess(confp,((float)cos(confp->orient)+1)/getPairAcrossDistSum(confp)); 
 }
 
 //检查退出
 void checkout(RobotConf* confp){
-    // if(getPairAcrossDistSum(confp) > getPairWinDist(confp)){
-    //     setConfStage(confp, -1);
-    // }
+    if(getPairAcrossDistSum(confp) > getPairWinDist(confp)){
+        setConfStage(confp, -1);
+    }
 }
 
 //重置函数，在确定开始解决该冲突时的重置工作
 void reset(RobotConf* confp){
-    // if(getPairAcrossDist(confp, confp->role[0]) < getPairAcrossDist(confp, confp->role[1])){
-    //     setConfRole(confp, confp->role[0]); //谁距离交点近谁是role0
-    // }
-    // else setConfRole(confp, confp->role[1]);
-    // setConfStage(confp, 1);
-    // resetPidStageStart(confp->role[0], 2);    //重置线速度PID
+    if(getPairAcrossDist(confp, confp->role[0]) < getPairAcrossDist(confp, confp->role[1])){ 
+        setConfRole(confp, confp->role[0]); //谁距离交点近谁是role0
+    }
+    else setConfRole(confp, confp->role[1]);
+    setConfStage(confp, 1);
+    resetPidStageStart(confp->role[0], 2);    //重置线速度PID
 }
 
 //该冲突的状态机切换函数

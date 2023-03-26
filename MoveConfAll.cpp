@@ -203,6 +203,9 @@ void initConfGameStart(){
     for(int i=0;i<CONF_TYPE_NUM;i++){
         (*confInit[i])(nullptr);      //各个冲突类型的初始化
     }
+    for(int i=0;i<ROBOT_NUM;i++){
+        setConfType(&(robot_conf_table[i][i]), MoveConfRegular::LOCAL_TYPE);
+    }
 }
 
 

@@ -37,7 +37,7 @@ const float MIN_SAFE_DISTANCE = 2 * ROBOT_RADIUS + 2 * SQRT_THREE;
 
 
 //旋转时的固定角速度
-const float ROTATE_OMEGA = 3;
+const float ROTATE_OMEGA = 1.6;
 
 //旋转时的最小、最大线速度
 const float ROTATE_LOW_SPEED = 1;
@@ -146,5 +146,11 @@ void setConfRole(RobotConf* confp, int robot_id);
 
 //返回在夹角中线的偏逆时针方向的一方的机器人编号
 int getPairAntiOne(RobotConf* confp);
+
+//获得窗口长度
+float getPairWinDist(RobotConf* confp);
+
+//获取其中一方到交点的距离
+float getPairAcrossDist(RobotConf* confp, int robot_id);
 
 #endif

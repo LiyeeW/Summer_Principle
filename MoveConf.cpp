@@ -116,15 +116,19 @@ bool getPairOppo(RobotConf* confp){
     return confp->orient > PI/2;
 }
 
+
+//获取其中一方到交点的距离
+float getPairAcrossDist(RobotConf* confp, int robot_id){
+    float dx1 = robot_trace_table[robot_id].xs - confp->x;
+    float dy1 = robot_trace_table[robot_id].ys - confp->y;
+    return sqrt(dx1*dx1+dy1*dy1);
+}
+
 //获取双方到交点的距离之和
 float getPairAcrossDistSum(RobotConf* confp){
     int id1 = (confp->role)[0];
     int id2 = (confp->role)[1];
-    float dx1 = robot_trace_table[id1].xs - confp->x;
-    float dy1 = robot_trace_table[id1].ys - confp->y;
-    float dx2 = robot_trace_table[id2].xs - confp->x;
-    float dy2 = robot_trace_table[id2].ys - confp->y;
-    return sqrt(dx1*dx1+dy1*dy1)+sqrt(dx2*dx2+dy2*dy2);
+    return getPairAcrossDist(confp, id1) + getPairAcrossDist(confp, id2);
 }
 
 //设定robot_id为新的role[0]，剩余的那个机器人编号为新的role[1]
@@ -135,7 +139,13 @@ void setConfRole(RobotConf* confp, int robot_id){
     }
 }
 
+//获得窗口长度
+float getPairWinDist(RobotConf* confp){
+    return WINDOWS_MARGIN * 4 * ROBOT_RADIUS / sin(confp->orient);
+}
+
 //返回在夹角中线的偏逆时针方向的一方的机器人编号
 int getPairAntiOne(RobotConf* confp){
     return 0;
 }
+
