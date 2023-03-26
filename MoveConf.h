@@ -8,7 +8,7 @@
 using namespace std;
 
 //相向夹角在多少以内算平
-const float FLAT_ANGLE = PI/6;
+const float FLAT_ANGLE = PI/8;
 
 //对窗口距离的裕度放宽倍数
 const float WINDOWS_MARGIN = 1.2;

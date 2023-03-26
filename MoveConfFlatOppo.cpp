@@ -23,8 +23,8 @@ void recognize(RobotConf* confp){
     if(getStageStill(confp->role[0]) || getStageStill(confp->role[1])) return;
     //识别标准：有交点，角度平，相向
     bool cond1 = confp->across && getPairFlat(confp) && getPairOppo(confp);
-    //识别标准2：轨迹交叠，距离很近
-    bool cond2 = (confp->distance < SAFE_DIST) && getOnRobotTrace(confp->role[0], confp->role[1]);
+    //识别标准2：轨迹交叠，距离很近，相向，不是通目的地
+    bool cond2 = (confp->distance < SAFE_DIST) && getOnRobotTrace(confp->role[0], confp->role[1])  && (getRobotDest(confp->role[0]) != getRobotDest(confp->role[1]));
     if(!cond1 && !cond2) return;
     setConfType(confp, LOCAL_TYPE);
     //评估1：(夹角余弦值+1)/双方到交点之和

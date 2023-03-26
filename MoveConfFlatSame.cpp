@@ -24,6 +24,8 @@ void recognize(RobotConf* confp){
     if(getStageStill(confp->role[0]) || getStageStill(confp->role[1])) return;
     //识别标准：有交点，角度平，同向
     if(!confp->across || !getPairFlat(confp) || getPairOppo(confp)) return;
+    //不是同一个目的地
+    if(getRobotDest(confp->role[0]) == getRobotDest(confp->role[1])) return;
     //如果双方之距离远大于某点到目的地的距离，则不处理
     if(confp->distance > 2*getRobotDestDistance(confp->role[0]) || confp->distance > 2*getRobotDestDistance(confp->role[1])) return;
     setConfType(confp, LOCAL_TYPE);
