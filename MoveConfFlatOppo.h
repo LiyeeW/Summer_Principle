@@ -5,6 +5,9 @@
 
 namespace MoveConfFlatOppo { 
 
+//安全距离
+const float SAFE_DIST = 2.7;
+
 
 //本地冲突类型
 const int LOCAL_TYPE = 1;
