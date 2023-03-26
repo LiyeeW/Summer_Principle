@@ -218,7 +218,7 @@ void generateBids(int robot_id){
         if(getTimeOfStation(s) == 0 && getTypeOfStation(s)>3){
             extra_w_source = 0.5;
         }
-        //dest工作台就差这一个产品就进入生产状态，增加权重 TODO
+        //dest工作台就差这一个产品就进入生产状态，增加权重
         int d_type = station_info_table[d].type, s_type = station_info_table[s].type;
         int now_raw = station_info_table[d].raw + (1<<s_type);
         int flag = false;
@@ -244,13 +244,13 @@ void generateBids(int robot_id){
         }
         flag = flag && (getOkOfStation(d)==0);   //true：能立马消耗原材料格，且此时产品格为空
         if(flag){
-            extra_w_dest = 1.0;
+            extra_w_dest = 1.3;
         }
         //如果现在缺少d类型产品，通货膨胀，权重适当增加
         float inflation = 1.0; //通货膨胀系数
-        if(d_type>=4 && d_type<=7){
-            if(product_info_table[d_type] == 0) inflation = 2.0;
-            else inflation += 1.0*product_num/product_info_table[d_type]/10;
+        if(d_type>=4 && d_type<=6){
+            if(product_info_table[d_type] == 0) inflation = 1.5;
+            else inflation += 1.0*product_num/product_info_table[d_type]/5;
         }
         ////////////////////////考虑等待时间
         //cerr<<task_id<<" "<<robot_id<<" "<<robot_info_table[robot_id].task_id<<endl;
@@ -279,6 +279,7 @@ void generateBids(int robot_id){
         //addBidInfo(robot_id,task_id,extra_w_source+extra_w_dest+waiting_task_list[task_id].value/sqrt(xx*xx+100*yy*yy));  //300
         //addBidInfo(robot_id,task_id,extra_w_source+extra_w_dest+waiting_task_list[task_id].value/100/(sqrt(xx*xx+4*yy*yy)+1.5*waiting_task_list[task_id].distance));
         //cerr<<current_frame<<"type="<<d_type<<",num="<<product_info_table[d_type]<<",inflation="<<inflation<<endl;
+        //addBidInfo(robot_id,task_id,inflation+extra_w_dest*waiting_task_list[task_id].value/100/(sqrt(xx*xx+yy*yy)+1.5*waiting_task_list[task_id].distance));
         addBidInfo(robot_id,task_id,inflation*waiting_task_list[task_id].value/100/(sqrt(xx*xx+yy*yy)+1.5*waiting_task_list[task_id].distance));
     }
     sortBidList(robot_id);
