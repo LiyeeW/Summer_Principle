@@ -140,8 +140,8 @@ void updateMeetingInfo(int robot_id1, int robot_id2, float &x,float &y,float &or
     }else{
         x = (robot_trace_table[robot_id2].b-robot_trace_table[robot_id1].b)/(robot_trace_table[robot_id1].k-robot_trace_table[robot_id2].k);
         y = robot_trace_table[robot_id1].k * x + robot_trace_table[robot_id1].b;
-        float o1 = getRobotDestOrient(robot_id1), o2 = getRobotDestOrient(robot_id2);
-        float delta_o;
+        float o1 = getRobotDestOrient(robot_id1), o2 = getRobotDestOrient(robot_id2);   //在(-pi,pi)之间
+        float delta_o;  //在(0,pi)之间
         if(o2>o1)   delta_o = o2-o1;
         else delta_o = o1-o2;
         if(delta_o>PI)  delta_o = 2*PI-delta_o;
@@ -156,7 +156,12 @@ void updateMovetracePerframe(){
     }
 }
 
-//判断某（静止的）机器人是否在某（移动的）机器人的trace附近（线与圆相交）
-bool getOnRobotTrace(int still_robot, int move_robot){
-
+ //判断机器人a是否在机器人b的trace附近（b的线与a的二倍半径圆相交）,a是still
+bool getOnRobotTrace(int a, int b){
+    //点a到直线b的距离计算
+    //直线b的各项参数
+    float k = robot_trace_table[b].k, b = robot_trace_table[b].b;
+    float xa = robot_trace_table[a].xs, ya = robot_trace_table[a].ys; //机器人a目前所在位置
+    float fenzi = fabs(k*xa-ya+b), fenmu = sqrt(k*k+1);
+    return fenzi/fenmu <= 2*ROBOT_RADIUS;
 }
