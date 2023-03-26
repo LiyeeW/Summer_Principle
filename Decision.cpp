@@ -139,7 +139,8 @@ void assignTaskfromBids(){
                 //while(isTaskBusy(bids_list[i][0].task_id) || isTaskConflict(bids_list[i][0].task_id)){
                 while(!bids_list[i].empty() && isTaskBusy(bids_list[i][0].task_id) || isTaskConflict(bids_list[i][0].task_id) || isTaskStationRepeat(bids_list[i][0].task_id)){
                     //但是如果i是最后一个没有被分配任务的工作台
-                    if(current_frame < 2 && assigned_robot_num == 3 && getSourceOfTask(bids_list[i][0].task_id) < 4) break;
+                    if(current_frame < 2 && assigned_robot_num == 3 && getSourceOfTask(bids_list[i][0].task_id) < 4
+                        && !isTaskBusy(bids_list[i][0].task_id) ) break;
                     bids_list[i].erase(bids_list[i].begin());
                     if(bids_list[i].empty()){
                         cerr<<current_frame<<": no task assign for robot "<<i<<endl;
