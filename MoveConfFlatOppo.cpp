@@ -1,7 +1,9 @@
+#include "Score.h"
 #include "MoveConfFlatOppo.h"
 #include "MoveTrace.h"
 #include "MoveConf.h"
 #include <cmath>
+#include <iostream>
 
 namespace MoveConfFlatOppo{
 
@@ -22,7 +24,7 @@ void recognize(RobotConf* confp){
     //识别标准：有交点，角度平，相向
     bool cond1 = confp->across && getPairFlat(confp) && getPairOppo(confp);
     //识别标准2：轨迹交叠，距离很近
-    bool cond2 = confp->distance < SAFE_DIST && getOnRobotTrace(confp->role[0], confp->role[1]);
+    bool cond2 = (confp->distance < SAFE_DIST) && getOnRobotTrace(confp->role[0], confp->role[1]);
     if(!cond1 && !cond2) return;
     setConfType(confp, LOCAL_TYPE);
     //评估1：(夹角余弦值+1)/双方到交点之和
