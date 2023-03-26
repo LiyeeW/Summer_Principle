@@ -110,12 +110,12 @@ bool isStaionFullRow(int station_id){
 
 //更新产品统计,返回4~7产品总数
 void updateProductInfo(){
-    for(int i=4;i<=7;i++){
+    for(int i=4;i<=6;i++){
         product_info_table[i]=0;
     }
     product_num = 0;
     for(int i=0;i<station_num;i++){
-        if(getOkOfStation(i)==1 && getTypeOfStation(i)>=4 && getTypeOfStation(i)<=7){
+        if(getOkOfStation(i)==1 && getTypeOfStation(i)>=4 && getTypeOfStation(i)<=6){
             product_num++;
             product_info_table[getTypeOfStation(i)]++;
         }
