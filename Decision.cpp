@@ -253,10 +253,11 @@ void generateBids(int robot_id){
             extra_w_dest = 1.3;
         }
         //如果现在缺少d类型产品，通货膨胀，权重适当增加
-        float inflation = 1.0; //通货膨胀系数
-        if(d_type>=4 && d_type<=6){
-            if(product_info_table[d_type] == 0) inflation = 2.0;
-            else inflation += 1.0*product_num/product_info_table[d_type]/5;
+        float inflation = 0; //通货膨胀系数
+        if(d_type==4 && staion4_num<=2){
+            //if(product_info_table[d_type] == 0) inflation = 2.0;
+            //else inflation += 1.0*product_num/product_info_table[d_type]/10;
+            inflation = 5.0;
         }
         ////////////////////////考虑等待时间
         //cerr<<task_id<<" "<<robot_id<<" "<<robot_info_table[robot_id].task_id<<endl;
@@ -278,7 +279,7 @@ void generateBids(int robot_id){
         }
         int trade_cost_time = robot_to_source+source_wait+source_to_dest+dest_wait;
         if(trade_cost_time > 9000-current_frame){
-            //cerr<<"!!!"<<current_frame<<" "<<trade_cost_time<<endl;
+            cerr<<"!!!"<<current_frame<<" "<<trade_cost_time<<endl;
             //continue;
         }
         //////////////////////
@@ -286,7 +287,7 @@ void generateBids(int robot_id){
         //addBidInfo(robot_id,task_id,extra_w_source+extra_w_dest+waiting_task_list[task_id].value/100/(sqrt(xx*xx+4*yy*yy)+1.5*waiting_task_list[task_id].distance));
         //cerr<<current_frame<<"type="<<d_type<<",num="<<product_info_table[d_type]<<",inflation="<<inflation<<endl;
         //addBidInfo(robot_id,task_id,inflation+extra_w_dest*waiting_task_list[task_id].value/100/(sqrt(xx*xx+yy*yy)+1.5*waiting_task_list[task_id].distance));
-        addBidInfo(robot_id,task_id,inflation+extra_w_dest*waiting_task_list[task_id].value/10/(sqrt(xx*xx+yy*yy)+1.5*waiting_task_list[task_id].distance));
+        addBidInfo(robot_id,task_id,inflation+waiting_task_list[task_id].value/100/(sqrt(xx*xx+yy*yy)+1.5*waiting_task_list[task_id].distance));
     }
     sortBidList(robot_id);
 }

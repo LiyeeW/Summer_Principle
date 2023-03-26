@@ -10,6 +10,8 @@ extern int station_num;
 //4~7产品数量
 extern int product_num;
 
+extern int staion4_num;
+
 //工作台的便于距离计算的关键信息
 typedef struct {
 	int type;	//1-9的工作台类型
