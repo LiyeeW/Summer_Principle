@@ -56,13 +56,18 @@ void resetNewConfSet(){
 void updateNewConfSet(RobotConf* confp){
     int a = confp->role[0], b= confp->role[1];
     RobotConf* max = confp;
+    RobotConf* old_a = newConfSet[a], *old_b = newConfSet[b];
     if(newConfSet[a]!=nullptr && newConfSet[a]->assess > max->assess){
         max = newConfSet[a];
     }
     if(newConfSet[b]!=nullptr && newConfSet[b]->assess > max->assess){
         max = newConfSet[b];
     }
-    newConfSet[a] = max, newConfSet[b] = max;
+    for(int i=0;i<ROBOT_NUM;i++){
+        if(i==a || i==b) newConfSet[i] = max;
+        else if(newConfSet[i]!=nullptr && (newConfSet[i]==old_a || newConfSet[i]==old_b)) newConfSet[i] = max;
+    }
+    cerr<<" confmax "<<max->assess<<endl;
 }
 
 //获取冲突集中第一个非空的记录
@@ -84,7 +89,7 @@ RobotConf* getFromNewConfSet(){
 void eraseFromNewConfSet(RobotConf* confp_ing){
     for(int i=0;i<ROBOT_NUM;i++){
         if(newConfSet[i]!=confp_ing) continue;
-        if(getConfSolving(i) == nullptr){
+        if(getConfSolving(i) == nullptr && confp_ing->role[0]!=i && confp_ing->role[1]!=i){
             RobotConf* confp = getConfPair(i, confp_ing->role[0]);
             setConfType(confp, MoveConfWait::LOCAL_TYPE); 
             setConfRole(confp, i);  //明确谁等谁
@@ -104,7 +109,8 @@ void recognizePairAnyConf(int a, int b){
     for(int i=0;i<CONF_TYPE_NUM;i++){
         (*confRecognize[i])(confp); //识别
         if(confp->type!=MoveConfRegular::LOCAL_TYPE){//新找到一个冲突对；
-            cerr<<"  find "<<confp->type<<" between "<<confp->role[0]<<" and "<<confp->role[1]<<endl;
+            cerr<<"  find "<<confp->type<<" assess "<<confp->assess<<" between "<<confp->role[0]<<" and "<<confp->role[1];
+            cerr<<"  solving "<<(getConfSolving(confp->role[0])!=nullptr)<<" "<<(getConfSolving(confp->role[1])!=nullptr)<<endl;
             if(wait_id!=-1){ //立刻分配为confWait
                 setConfType(confp, MoveConfWait::LOCAL_TYPE);
                 setConfRole(confp, wait_id);
@@ -112,7 +118,7 @@ void recognizePairAnyConf(int a, int b){
                 switchConfType(confp);
             }
             else{ //加入冲突集
-                updateNewConfSet(&(robot_conf_table[a][b]));
+                updateNewConfSet(confp);
             }
             return; //TODO假设：一对之间最多只存在一种冲突
         }
